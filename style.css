@@ -1,0 +1,76 @@
+:root {
+  --bg: #F7F5F0;
+  --surface: #FFFFFF;
+  --border: #E3DFD3;
+  --text: #22261F;
+  --text-dim: #63685B;
+  --accent: #2E5B4A;
+  --accent-soft: #DCE7E1;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Hiragino Sans", "Yu Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.8;
+  font-size: 16px;
+}
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+header.site {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+header.site a { color: var(--text); text-decoration: none; }
+header.site .brand { font-size: 22px; font-weight: 700; }
+header.site .tagline { font-size: 14px; color: var(--text-dim); }
+
+h1 { font-size: 26px; line-height: 1.4; margin: 0 0 8px; }
+h2 { font-size: 19px; margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 10px; }
+.meta { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; }
+.meta div { margin-bottom: 2px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; white-space: nowrap; }
+th { background: var(--accent-soft); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+}
+.card h3 { margin: 0 0 6px; font-size: 16px; }
+.card .sub { font-size: 13px; color: var(--text-dim); }
+.card a { color: var(--accent); font-weight: 600; }
+
+.disclaimer {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-top: 40px;
+}
+
+.article-list { display: flex; flex-direction: column; gap: 14px; }
+.article-list a { text-decoration: none; color: inherit; }
+.article-list .title { font-size: 17px; font-weight: 600; color: var(--text); }
+.article-list .excerpt { font-size: 14px; color: var(--text-dim); margin-top: 4px; }
+
+footer.site {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12.5px;
+  color: var(--text-dim);
+  text-align: center;
+}
