@@ -37,6 +37,39 @@ header.site a { color: var(--text); text-decoration: none; }
 header.site .brand { font-size: 22px; font-weight: 700; }
 header.site .tagline { font-size: 14px; color: var(--text-dim); }
 
+/* homepage hero */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow);
+}
+.hero-illustration { width: 220px; height: 150px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
+.hero-text { flex: 1; min-width: 0; }
+.hero-text p { margin: 0; font-size: 14px; color: var(--text-dim); line-height: 1.9; }
+@media (max-width: 480px) {
+  .hero { flex-direction: column; text-align: center; padding: 24px 20px; }
+  .hero-illustration { width: 100%; height: 160px; }
+}
+
+/* article category grouping */
+.category-block { margin-bottom: 32px; }
+.category-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0 0 12px;
+}
+.category-heading .emoji { font-size: 17px; }
+
 h1 { font-size: 26px; line-height: 1.4; margin: 0 0 8px; }
 h2 { font-size: 19px; margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 10px; }
 .meta { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; }
@@ -69,7 +102,7 @@ th { background: var(--accent-soft); }
 .article-list a { text-decoration: none; color: inherit; }
 .article-list .card { display: flex; gap: 14px; align-items: center; margin-bottom: 0; transition: box-shadow .15s, transform .15s; }
 .article-list a:hover .card { box-shadow: var(--shadow); transform: translateY(-1px); }
-.article-list .thumb { width: 64px; height: 64px; flex-shrink: 0; border-radius: 8px; overflow: hidden; background: var(--accent-soft); display: flex; align-items: center; justify-content: center; }
+.article-list .thumb { width: 72px; height: 72px; flex-shrink: 0; border-radius: 10px; overflow: hidden; background: var(--accent-soft); display: flex; align-items: center; justify-content: center; }
 .article-list .thumb img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
 .article-list .title { font-size: 17px; font-weight: 600; color: var(--text); }
 .article-list .excerpt { font-size: 14px; color: var(--text-dim); margin-top: 4px; }
