@@ -69,6 +69,7 @@ header.site .tagline { font-size: 14px; color: var(--text-dim); }
   margin: 0 0 12px;
 }
 .category-heading .emoji { font-size: 17px; }
+.category-banner { width: 100%; max-height: 220px; object-fit: cover; border-radius: 14px; margin-bottom: 14px; box-shadow: var(--shadow); }
 
 h1 { font-size: 26px; line-height: 1.4; margin: 0 0 8px; }
 h2 { font-size: 19px; margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 10px; }
