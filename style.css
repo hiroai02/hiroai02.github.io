@@ -207,6 +207,38 @@ th { background: var(--accent-soft); }
 table .cell-product { display: flex; align-items: center; gap: 8px; white-space: normal; min-width: 160px; }
 table .cell-product img { width: 36px; height: 36px; object-fit: contain; background: #fff; border: 1px solid var(--border); border-radius: 6px; flex-shrink: 0; }
 table .buy-btn { padding: 5px 12px; font-size: 12px; }
+table .buy-btn.rakuten { background: #BF0000; box-shadow: none; }
+table .buy-btn.rakuten:hover { background: #950000; }
+table .shop-price { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+
+/* dual-platform (Amazon/楽天) price compare */
+.price-compare { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.price-option {
+  flex: 1;
+  min-width: 150px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  position: relative;
+}
+.price-option.cheapest { border-color: var(--cta); }
+.price-option .shop-label { font-size: 11px; font-weight: 700; color: var(--text-dim); letter-spacing: 0.02em; margin-bottom: 4px; }
+.price-option .shop-price { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.price-option .cheapest-badge {
+  position: absolute;
+  top: -9px;
+  right: 10px;
+  background: var(--cta);
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.price-option .buy-btn { width: 100%; justify-content: center; }
+.price-option.rakuten .buy-btn { background: #BF0000; box-shadow: 0 2px 8px rgba(191,0,0,0.3); }
+.price-option.rakuten .buy-btn:hover { background: #950000; }
 
 .assoc-note {
   font-size: 11.5px;
