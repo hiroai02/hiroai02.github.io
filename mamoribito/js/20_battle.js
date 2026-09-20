@@ -92,12 +92,20 @@ function startQuest(questId) {
 // toward a wider phone doesn't shrink the characters back down.
 function fitBoard() {
   const c = document.getElementById('board');
+  const stage = c.closest('.battle-stage');
+  const head = document.querySelector('#v-battle .battle-head');
+  const viewportH = Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || 720);
   const maxW = Math.min(window.innerWidth, 568);
   c.width = Math.max(280, Math.floor(maxW));
 
-  // Surviving battle screenshots show a compact near-square combat field. Do not stretch
-  // unit Y positions to fill a modern tall phone; preserve the original formation ratio.
-  c.height = Math.max(240, Math.floor(c.width * 0.86));
+  // The hosted phone build must own the whole visible battle viewport. The previous fixed
+  // 0.86 ratio left roughly half of a modern iPhone as an empty green slab below the field.
+  // Keep a minimum compact composition, then extend the painted field to the bottom of the
+  // visible viewport. All unit positions remain normalized, so formation stays deterministic.
+  const headH = head ? Math.ceil(head.getBoundingClientRect().height) : 70;
+  const availableH = Math.max(360, viewportH - headH);
+  c.height = Math.max(Math.floor(c.width * 0.98), availableH);
+  if (stage) stage.style.height = c.height + 'px';
   B.cell = c.width / Math.max(1, B.map.cols);
 }
 
