@@ -1759,3 +1759,35 @@ body { min-width: 280px; }
   #v-battle .battle-member { font-size:14px; }
   #v-battle .battle-num { width:23px; height:23px; font-size:13px; }
 }
+
+
+/* Battle HUD pass: denser original-mobile header and controls that stay clear of gauges. */
+#v-battle .battle-head {
+  min-height:72px;
+  background:
+    repeating-conic-gradient(from -12deg at 50% 128%,
+      rgba(80,157,84,.92) 0 9deg,
+      rgba(247,247,228,.98) 9deg 18deg);
+  border-bottom:2px solid rgba(54,95,45,.38);
+  box-shadow:0 2px 0 rgba(255,255,255,.45) inset;
+}
+#v-battle .battle-roster {
+  max-width:470px;
+  margin:0 auto;
+}
+#v-battle .battle-member {
+  min-height:28px;
+  text-shadow:0 1px 0 rgba(255,255,255,.8);
+}
+#v-battle .battle-num {
+  box-shadow:0 1px 0 rgba(255,255,255,.55) inset;
+}
+#v-battle .battle-controls .retire {
+  border:2px solid #8b6841;
+  background:linear-gradient(#f6e8bd,#e5cf94);
+  color:#aa3b30;
+}
+#v-battle .battle-controls .speed {
+  border:2px solid rgba(255,255,255,.32);
+  background:rgba(36,29,22,.86);
+}
