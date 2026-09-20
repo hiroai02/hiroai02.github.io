@@ -300,7 +300,11 @@ function drawChibi(ctx, cx, cy, size, u, j, stats, slotIdx) {
   ctx.save();
   ctx.translate(dcx - cx, 0);
 
-  const art = heroArtCache[u.hero.job];
+  // Battle reliability first: some early generated masters contain checker/noise pixels that
+  // become very visible after background extraction on iPhone. Keep those masters for UI QA,
+  // but use the deterministic clean floating-equipment renderer in battle until each replacement
+  // master has passed alpha-edge validation.
+  const art = null;
   if (art) {
     // AI-generated original chibi art (see loadHeroArt) - already includes its own ground
     // shadow, so no procedural shadow/boots/cape/prop/body underneath it. Drawn from the
