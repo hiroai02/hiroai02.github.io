@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Legend防衛</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div id="v-home" class="view active">
+  <div class="titlebar home-title">マイページ<button class="btn sm muteBtn" id="muteBtn">音 ON</button></div>
+  <div class="home-hero">
+    <div class="home-class">
+      <div id="homeJobName" class="home-job-name">剣士</div>
+      <div id="homeJobSub" class="home-job-sub">FENCER</div>
+      <div id="homeClassBand" class="home-class-ribbon">Basic Class</div>
+    </div>
+    <img id="homeHeroArt" class="home-hero-art" alt="">
+  </div>
+  <div class="home-status">
+    <div><span>職Lv</span><b id="homeJobLv">1/20</b><span>ゼニー</span><b id="homeGold"></b></div>
+    <div><span>武器Lv</span><b id="homeWeaponLv"></b><span>オーブ</span><b id="homeOrb">なし</b></div>
+    <div class="wide"><span>職Exp</span><b id="homeExp">0</b></div>
+    <div class="wide"><span>伝説度</span><b id="homeLegend"></b></div>
+  </div>
+  <div class="home-bonus" id="homeBonus"></div>
+  <div class="menu home-menu">
+    <button data-go="v-quests"><span class="menu-seal">任</span><span><b>任務</b><small>防衛へ向かう</small></span></button>
+    <button data-go="v-train"><span class="menu-seal">修</span><span><b>修行</b><small>職Lvを鍛える</small></span></button>
+    <button data-go="v-party"><span class="menu-seal">装</span><span><b>装備</b><small>武器・オーブ</small></span></button>
+    <button data-go="v-tree"><span class="menu-seal">職</span><span><b>職業</b><small>転職・系統</small></span></button>
+    <button data-go="v-servant"><span class="menu-seal">伴</span><span><b>おともびと</b><small>同行設定</small></span></button>
+    <button data-go="v-codex"><span class="menu-seal">画</span><span><b>ギャラリー</b><small>敵・職業の記録</small></span></button>
+    <button data-go="v-titles"><span class="menu-seal">称</span><span><b>称号</b><small>達成記録</small></span></button>
+    <button data-go="v-settings"><span class="menu-seal">設</span><span><b>設定</b><small>音・データ</small></span></button>
+  </div>
+</div>
+
+<div id="v-quests" class="view">
+  <div class="titlebar"><button class="back-link" data-go="v-home">←</button>任務</div>
+  <div class="wrap quest-wrap">
+    <div class="quest-guide">
+      <div class="quest-guide-portrait"><img id="questGuideArt" alt=""></div>
+      <div class="quest-guide-bubble">今日はどの任務を受ける？</div>
+    </div>
+    <div class="quest-difficulty-label">難易度</div>
+    <div class="row quest-tabs" id="questTabs"></div>
+    <div class="list" id="questList"></div>
+  </div>
+</div>
+
+<div id="v-quest-detail" class="view">
+  <div class="titlebar"><button class="back-link" data-go="v-quests">←</button>任務確認</div>
+  <div class="quest-detail-head">
+    <small>任務名</small>
+    <h2 id="questDetailTitle"></h2>
+  </div>
+  <div id="questDetailBody" class="quest-detail-body"></div>
+  <div class="quest-detail-actions">
+    <button class="btn quest-cancel" data-go="v-quests">やめる</button>
+    <button class="btn primary quest-start" id="questStartBtn">出撃する</button>
+  </div>
+</div>
+
+<div id="v-party" class="view">
+  <div class="titlebar"><button class="back-link" data-go="v-home">←</button>武器屋</div>
+  <div class="shop-guide">
+    <div class="shop-guide-art"><img id="shopGuideArt" alt=""></div>
+    <div class="shop-guide-bubble">武器とオーブは、守り手ごとに整えておけ。</div>
+  </div>
+  <div class="party-picker" id="partyHeroPicker"></div>
+  <div class="wrap shop-wrap">
+    <div class="list" id="partyList"></div>
+  </div>
+</div>
+
+<div id="v-tree" class="view">
+  <div class="titlebar"><button class="back-link" data-go="v-home">←</button>職業</div>
+  <div class="tree-summary" id="treeSummary"></div>
+  <div class="party-picker" id="treeHeroPicker"></div>
+  <div class="section-bar tree-section">職業系統</div>
+  <div class="wrap tree-wrap">
+    <div class="list" id="treeList"></div>
+  </div>
+</div>
+
+<div id="v-train" class="view">
+  <div class="titlebar"><button class="back-link" data-go="v-home">←</button>修行</div>
+  <div class="wrap">
+    <div class="bar"><span class="chip">修行札 <b id="trainTickets"></b></span></div>
+    <div class="row" id="trainHeroPicker" style="margin-bottom:8px"></div>
+    <div class="lede" id="trainBar"></div>
+    <div class="lede" id="trainMsg" style="color:var(--shu)"></div>
+    <div class="list" id="trainList"></div>
+  </div>
+</div>
+
+<div id="v-servant" class="view">
+  <div class="titlebar"><button class="back-link" data-go="v-home">←</button>おともびと</div>
+  <div class="sub-info"><b>同行</b><span id="servantActiveCount">0 / 2</span><small>まもりびととは別枠</small></div>
+  <div class="wrap list-wrap"><div class="list" id="servantList"></div></div>
+</div>
+
+<div id="v-titles" class="view">
+  <div class="titlebar"><button class="back-link" data-go="v-home">←</button>称号</div>
+  <div class="sub-info"><b>獲得数</b><span id="titleCount">0 / 0</span><small>転職条件になる称号あり</small></div>
+  <div class="wrap list-wrap"><div class="list" id="titleList"></div></div>
+</div>
+
+<div id="v-codex" class="view">
+  <div class="titlebar"><button class="back-link" data-go="v-home">←</button>ギャラリー</div>
+  <div class="gallery-tabs" id="codexTabs"></div>
+  <div class="wrap list-wrap"><div class="list" id="codexList"></div></div>
+</div>
+
+<div id="v-settings" class="view">
+  <div class="titlebar"><button class="back-link" data-go="v-home">←</button>設定</div>
+  <div class="settings-list">
+    <div class="section-bar">環境設定</div>
+    <div class="setting-row"><span><b>音</b><small>効果音のON/OFF</small></span><button class="btn link" id="settingsMuteBtn">変更</button></div>
+    <div class="section-bar danger-bar">データ</div>
+    <div class="setting-row danger-row"><span><b>進行データ</b><small>この端末に保存</small></span><button class="btn link danger-link" id="resetBtn">データを消す</button></div>
+  </div>
+</div>
+
+<div id="v-result" class="view">
+  <div class="result-wrap">
+    <div class="result-kicker">任務結果</div>
+    <div class="result-mark" id="resultMark"></div>
+    <h1 id="resultTitle"></h1>
+    <div class="result-quest" id="resultQuestName"></div>
+    <div class="result-text" id="resultText"></div>
+    <div class="result-actions" id="resultActions"></div>
+  </div>
+</div>
+
+<div id="v-battle" class="view">
+  <div class="battle-head">
+    <div id="battleRoster" class="battle-roster"></div>
+  </div>
+  <div class="battle-stage">
+    <canvas id="board"></canvas>
+    <div class="battle-controls">
+      <button class="btn sm retire" id="quitBtn">リタイア</button>
+      <button class="btn sm speed" id="speedBtn">×1</button>
+    </div>
+  </div>
+</div>
+
+<div id="ov" class="ov"><div class="card"><h2></h2><p></p><div class="row"></div></div></div>
+
+<script src="./data.js"></script>
+<script src="./art.js"></script>
+<script>window.SAVE_STATE = null;</script>
+
+<script src="./js/10_core.js"></script>
+<script src="./js/15_ui_art.js"></script>
+<script src="./js/16_art_ashigaru.js"></script>
+<script src="./js/16_art_jumi.js"></script>
+<script src="./js/16_art_kagura.js"></script>
+<script src="./js/16_art_shashu.js"></script>
+<script src="./js/20_battle.js"></script>
+<script src="./js/30_render.js"></script>
+<script src="./js/40_ui.js"></script>
+<script src="./js/50_main.js"></script>
+</body>
+</html>
