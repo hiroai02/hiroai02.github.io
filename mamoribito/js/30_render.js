@@ -140,6 +140,9 @@ function loadHeroArt() {
     if (!key.startsWith('hero_')) continue;
     const jobId = key.slice(5);
     const img = new Image();
+    // Hosted build loads legacy art from raw.githubusercontent.com. Anonymous CORS keeps
+    // extractSubject()/toDataURL canvas operations readable instead of tainting the canvas.
+    if (/^https?:\/\//.test(art[key])) img.crossOrigin = 'anonymous';
     img.onload = () => {
       heroArtCache[jobId] = extractSubject(img, HERO_ART_FLIP.has(jobId));
       delete jobIconCache[jobId];
@@ -168,6 +171,7 @@ function loadEnemyArt() {
     if (!key.startsWith('enemy_')) continue;
     const enemyId = key.slice(6);
     const img = new Image();
+    if (/^https?:\/\//.test(art[key])) img.crossOrigin = 'anonymous';
     img.onload = () => { enemyArtCache[enemyId] = extractSubject(img, ENEMY_ART_FLIP.has(enemyId)); };
     img.src = art[key];
   }
