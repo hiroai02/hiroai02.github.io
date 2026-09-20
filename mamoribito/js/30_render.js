@@ -142,8 +142,14 @@ function loadHeroArt() {
     const img = new Image();
     // Hosted build loads legacy art from raw.githubusercontent.com. Anonymous CORS keeps
     // extractSubject()/toDataURL canvas operations readable instead of tainting the canvas.
-    if (/^https?:\/\//.test(art[key])) img.crossOrigin = 'anonymous';
+    const remoteArt = /^https?:\/\//.test(art[key]);
+    if (remoteArt) img.crossOrigin = 'anonymous';
     img.onload = () => {
+      // The hosted site may load legacy JPEGs cross-origin. Drawing those into a canvas and
+      // reading pixels/toDataURL is browser-sensitive and caused visible corrupt fragments on
+      // iPhone. Keep remote legacy art as a plain-image fallback; validated embedded rebuild
+      // art still uses the transparent extraction pipeline.
+      if (remoteArt) return;
       heroArtCache[jobId] = extractSubject(img, HERO_ART_FLIP.has(jobId));
       delete jobIconCache[jobId];
       delete heroPortraitCache[jobId];
@@ -171,8 +177,9 @@ function loadEnemyArt() {
     if (!key.startsWith('enemy_')) continue;
     const enemyId = key.slice(6);
     const img = new Image();
-    if (/^https?:\/\//.test(art[key])) img.crossOrigin = 'anonymous';
-    img.onload = () => { enemyArtCache[enemyId] = extractSubject(img, ENEMY_ART_FLIP.has(enemyId)); };
+    const remoteArt = /^https?:\/\//.test(art[key]);
+    if (remoteArt) img.crossOrigin = 'anonymous';
+    img.onload = () => { if (!remoteArt) enemyArtCache[enemyId] = extractSubject(img, ENEMY_ART_FLIP.has(enemyId)); };
     img.src = art[key];
   }
 }
