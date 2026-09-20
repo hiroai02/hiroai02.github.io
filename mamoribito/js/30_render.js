@@ -613,9 +613,21 @@ function drawBattle() {
     ctx.beginPath(); ctx.ellipse(x, y, 6, 2, 0, 0, Math.PI * 2); ctx.fill();
   }
 
-  // A subtle "breach line" at the right edge. Reaching it costs a life; no pause/back escape.
-  ctx.fillStyle = 'rgba(135,61,42,0.16)';
-  ctx.fillRect(w * 0.965, h * 0.39, w * 0.018, h * 0.37);
+  // Village defence marker at the right edge. It makes the fail condition visually obvious
+  // without adding another HUD panel: one enemy crossing this gate ends the defence.
+  const gateX = w * 0.958, gateTop = h * 0.365, gateBottom = h * 0.72;
+  ctx.fillStyle = 'rgba(94,45,25,.18)';
+  ctx.fillRect(gateX - w * 0.012, gateTop, w * 0.024, gateBottom - gateTop);
+  ctx.strokeStyle = 'rgba(92,45,24,.68)';
+  ctx.lineWidth = Math.max(2, w * 0.007);
+  ctx.beginPath();
+  ctx.moveTo(gateX - w * 0.018, gateTop + h * 0.02);
+  ctx.lineTo(gateX - w * 0.018, gateBottom);
+  ctx.moveTo(gateX + w * 0.018, gateTop + h * 0.02);
+  ctx.lineTo(gateX + w * 0.018, gateBottom);
+  ctx.moveTo(gateX - w * 0.035, gateTop + h * 0.035);
+  ctx.lineTo(gateX + w * 0.035, gateTop + h * 0.035);
+  ctx.stroke();
 
   // Short-lived attack tracers. They show who attacked whom without covering the field.
   for (const shot of B.shots) {
@@ -641,7 +653,7 @@ function drawBattle() {
   }
 
   // Original-style four-person formation: #1/#3 top, #2/#4 bottom, large enough to read on phone.
-  const heroSize = w * 0.30;
+  const heroSize = w * 0.27;
   B.units.forEach((u, idx) => {
     const j = JOBS[u.hero.job], stats = heroStats(u.hero);
     drawChibi(ctx, u.x * w, u.y * h, heroSize, u, j, stats, idx);
@@ -651,7 +663,7 @@ function drawBattle() {
     if (e.hp <= 0) continue;
     const p = battlePoint(e.pos);
     const px = p.x * w, py = p.y * h;
-    const r = w * (e.def.boss ? 0.145 : 0.082);
+    const r = w * (e.def.boss ? 0.135 : 0.076);
 
     // The original screen gives enemies a compact black ground-shadow directly above the red HP
     // bar. Keeping that pairing makes the moving target readable against the pale road.
