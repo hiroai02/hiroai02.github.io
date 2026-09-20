@@ -1719,3 +1719,43 @@ body { min-width: 280px; }
   margin-top:12px;
 }
 .result-actions .btn { min-height:50px; font-size:16px; font-weight:800; }
+
+
+/* === HOSTED PHONE BATTLE PASS 2026-09-20 ===
+   The battle stage owns the remaining visual viewport. No dead slab below the canvas. */
+#v-battle.active {
+  min-height:100dvh;
+  height:100dvh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+#v-battle .battle-head {
+  flex:0 0 auto;
+  padding-top:max(6px, env(safe-area-inset-top, 0px));
+}
+#v-battle .battle-stage {
+  flex:1 1 auto;
+  width:100%;
+  max-width:568px;
+  overflow:hidden;
+  background:#68A33D;
+}
+#v-battle #board {
+  width:100%;
+  height:100%;
+  object-fit:fill;
+}
+#v-battle .battle-controls {
+  bottom:max(10px, env(safe-area-inset-bottom, 0px));
+  left:10px;
+  right:10px;
+}
+#v-battle .battle-controls .btn {
+  min-height:46px;
+  font-size:15px;
+}
+@media (max-width:380px) {
+  #v-battle .battle-member { font-size:14px; }
+  #v-battle .battle-num { width:23px; height:23px; font-size:13px; }
+}
