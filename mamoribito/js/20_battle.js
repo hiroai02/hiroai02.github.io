@@ -29,7 +29,9 @@ function pathPoint(map, pos) {
 // lane. Coordinates here are NORMALISED screen positions (0..1), not map tiles. Slot order is
 // #1 upper-left, #2 lower-left, #3 upper-right, #4 lower-right, matching the original layout.
 function heroAnchors(map) {
-  return [[0.54, 0.25], [0.55, 0.75], [0.82, 0.25], [0.82, 0.75]];
+  // Tall-phone composition: keep the four defenders grouped around the actual combat lane
+  // instead of letting the lower pair drift into the bottom controls area.
+  return [[0.57, 0.27], [0.57, 0.69], [0.82, 0.27], [0.82, 0.69]];
 }
 
 // Enemy movement still uses the data map's scalar path distance, but rendering/effects use a
@@ -38,7 +40,7 @@ function heroAnchors(map) {
 function battlePoint(pos) {
   const len = Math.max(1, B.map.path.length - 1);
   const t = Math.max(0, Math.min(1, pos / len));
-  return { x: 0.06 + t * 0.88, y: 0.54 };
+  return { x: 0.055 + t * 0.89, y: 0.48 };
 }
 
 function heroStats(hero) {
