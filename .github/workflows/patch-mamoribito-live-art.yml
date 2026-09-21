@@ -1,0 +1,80 @@
+name: Patch Mamoribito Live Art
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch-live-art:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inline approved advanced profession art
+        shell: python
+        run: |
+          from pathlib import Path
+
+          index = Path("mamoribito/index.html")
+          text = index.read_text(encoding="utf-8")
+
+          parts = []
+          for i in range(7):
+              p = Path(f"mamoribito/art_chunks/advanced_jobs_v1.b64.{i:02d}")
+              parts.append("".join(p.read_text(encoding="utf-8").split()))
+          sheet_b64 = "".join(parts)
+
+          marker = "async function loadAdvancedJobSheet()"
+          func_pos = text.rfind(marker)
+          if func_pos < 0:
+              raise SystemExit("active loadAdvancedJobSheet not found")
+
+          setup_old_start = "    const version = '20260921-advanced-v1';"
+          setup_start = text.find(setup_old_start, func_pos)
+          setup_end = text.find("    const sheet = new Image();", setup_start)
+          if setup_start < 0 or setup_end < 0:
+              if "MAMORIBITO_ADVANCED_ART_REV = '20260921-inline-v2'" in text[func_pos:]:
+                  print("already patched")
+                  raise SystemExit(0)
+              raise SystemExit("loader setup block not found")
+
+          setup_new = (
+              "    window.MAMORIBITO_ADVANCED_ART_REV = '20260921-inline-v2';\n"
+              f"    const sheetB64 = '{sheet_b64}';\n"
+          )
+          text = text[:setup_start] + setup_new + text[setup_end:]
+
+          func_pos = text.rfind(marker)
+          old_src = "    sheet.src = 'data:image/webp;base64,' + parts.join('');"
+          src_pos = text.find(old_src, func_pos)
+          if src_pos < 0:
+              raise SystemExit("sheet source block not found")
+          new_src = "    sheet.src = 'data:image/webp;base64,' + sheetB64;"
+          text = text[:src_pos] + new_src + text[src_pos + len(old_src):]
+
+          end = text.find("function darken", func_pos)
+          active = text[func_pos:end]
+          if "fetch(url" in active or "parts.join" in active:
+              raise SystemExit("network loader still remains")
+          if "20260921-inline-v2" not in active:
+              raise SystemExit("revision marker missing")
+
+          index.write_text(text, encoding="utf-8")
+          print("patched", len(sheet_b64), "base64 chars into live index")
+
+      - name: Commit live build patch
+        shell: bash
+        run: |
+          if git diff --quiet -- mamoribito/index.html; then
+            echo "No patch needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mamoribito/index.html
+          git commit -m "fix: inline advanced job art in live build"
+          git push
