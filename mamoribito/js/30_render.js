@@ -175,10 +175,19 @@ function extractStarterSubject(img) {
   const frame = ctx.getImageData(0, 0, w, h);
   const d = frame.data;
 
-  // The approved starter sheet has a parchment background around RGB(245,237,220).
-  // Compare every flood-fill candidate to that fixed background colour instead of to
-  // the previous pixel. This prevents a gradual colour ramp from walking into the character.
-  const samples = [[3,3],[w-4,3],[3,h-4],[w-4,h-4]];
+  // The starter sheet is opaque and includes decorative panel edges. Sampling only the
+  // literal crop corners can lock the flood fill outside that frame and leave a visible
+  // rectangular plate on My Page. Sample the parchment just inside the panel instead, then
+  // seed all parchment-like pixels in an outer band so the fill can start on BOTH sides of
+  // a decorative frame. The actual character remains protected by its dark outline.
+  const sampleX = Math.max(5, Math.round(w * 0.09));
+  const sampleY = Math.max(5, Math.round(h * 0.07));
+  const samples = [
+    [sampleX, sampleY],
+    [w - sampleX - 1, sampleY],
+    [sampleX, h - sampleY - 1],
+    [w - sampleX - 1, h - sampleY - 1],
+  ];
   let br=0,bg=0,bb=0;
   for (const [x,y] of samples) {
     const i=(y*w+x)*4; br+=d[i]; bg+=d[i+1]; bb+=d[i+2];
@@ -186,14 +195,33 @@ function extractStarterSubject(img) {
   br/=samples.length; bg/=samples.length; bb/=samples.length;
   const isBg = (p) => {
     const i=p*4;
-    return Math.abs(d[i]-br)+Math.abs(d[i+1]-bg)+Math.abs(d[i+2]-bb) < 72;
+    return Math.abs(d[i]-br)+Math.abs(d[i+1]-bg)+Math.abs(d[i+2]-bb) < 108;
   };
 
   const seen = new Uint8Array(w*h);
   const q = [];
   const push = (p) => { if (!seen[p] && isBg(p)) { seen[p]=1; q.push(p); } };
-  for (let x=0;x<w;x++) { push(x); push((h-1)*w+x); }
-  for (let y=0;y<h;y++) { push(y*w); push(y*w+w-1); }
+
+  // Clear the thin sheet/separator rim outright; approved starter subjects are centered well
+  // inside these margins. This prevents a dark crop border surviving as a rectangular frame.
+  const trimX = Math.max(3, Math.round(w * 0.035));
+  const trimY = Math.max(3, Math.round(h * 0.018));
+  for (let y=0;y<h;y++) {
+    for (let x=0;x<w;x++) {
+      if (x >= trimX && x < w-trimX && y >= trimY && y < h-trimY) continue;
+      const p=y*w+x; seen[p]=1; d[p*4+3]=0;
+    }
+  }
+
+  // Start removal from parchment-like pixels in a generous outer band, not just from the
+  // image edge. That reaches the panel interior even when a decorative line encloses it.
+  const bandX = Math.max(trimX + 1, Math.round(w * 0.20));
+  const bandY = Math.max(trimY + 1, Math.round(h * 0.14));
+  for (let y=trimY;y<h-trimY;y++) {
+    for (let x=trimX;x<w-trimX;x++) {
+      if (x < bandX || x >= w-bandX || y < bandY || y >= h-bandY) push(y*w+x);
+    }
+  }
   for (let head=0; head<q.length; head++) {
     const p=q[head], x=p%w, y=(p/w)|0;
     if (x>0) push(p-1);
@@ -310,7 +338,7 @@ function extractSubject(img, flip) {
     return { canvas: c, bx: minX, by: minY, bw: maxX - minX + 1, bh: maxY - minY + 1 };
   }
 
-  const close = (i, j) => Math.abs(d[i] - d[j]) + Math.abs(d[i + 1] - d[j + 1]) + Math.abs(d[i + 2] - d[j + 2]) < 26;
+  const close = (i, j) => Math.abs(d[i] - d[j]) + Math.abs(d[i + 1] - d[j + 1]) + Math.abs(d[i + 2] - d[j + 2]) < 42;
   const visited = new Uint8Array(w * h);
   // BFS queue of pixel indices, seeded with the whole border
   const bfs = [];
@@ -347,9 +375,9 @@ function extractSubject(img, flip) {
   const isPaleBg = (p) => {
     const i = p * 4, rr = d[i], gg = d[i + 1], bb = d[i + 2];
     const hi = Math.max(rr, gg, bb), lo = Math.min(rr, gg, bb);
-    return lo > 208 && hi > 226 && (hi - lo) < 38;
+    return lo > 188 && hi > 214 && (hi - lo) < 58;
   };
-  for (let pass = 0; pass < 5; pass++) {
+  for (let pass = 0; pass < 9; pass++) {
     fringe.fill(0);
     let found = 0;
     for (let p = 0; p < w * h; p++) {
