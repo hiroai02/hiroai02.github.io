@@ -2669,22 +2669,76 @@ html { -webkit-text-size-adjust:100%; }
   .home-menu button:nth-child(-n+4) small { font-size:9px; }
 }
 
-/* MAMORIBITO ORIGINAL HOME STATUS WIDTH 2026-09-21 */
-#v-home .home-status {
-  width:clamp(178px,55.5vw,190px);
-  max-width:calc(100% - 20px);
-  margin-left:auto;
-  margin-right:auto;
+/* MAMORIBITO PHONE HOME FINAL OVERRIDE 2026-09-21 */
+#v-home .home-hero {
+  width:100%;
+  min-height:clamp(154px,44vw,242px);
+  height:clamp(154px,44vw,242px);
+  margin:0;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg,rgba(118,197,244,.98) 0 40%,rgba(190,221,124,.98) 41% 100%);
+}
+#v-home .home-hero-art {
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  right:clamp(2px,1.2vw,7px);
+  bottom:-3px;
+  width:clamp(176px,54vw,286px);
+  height:97%;
+  max-width:58%;
+  object-fit:contain;
+  object-position:center bottom;
+}
+#v-home .home-class {
+  left:clamp(10px,5vw,30px);
+  top:clamp(25px,7.5vw,42px);
+  width:clamp(138px,43vw,190px);
+}
+#v-home .home-status,
+#v-home .home-bonus {
+  width:100%;
+  max-width:none;
+  margin-left:0;
+  margin-right:0;
   box-sizing:border-box;
 }
+#v-home .home-status {
+  font-size:clamp(11px,3.35vw,13px);
+}
 #v-home .home-status > div {
-  grid-template-columns:40px 48px 52px minmax(0,1fr);
+  min-height:clamp(27px,7.2vw,32px);
+  height:auto;
+  grid-template-columns:
+    clamp(52px,17vw,70px) minmax(0,1fr)
+    clamp(52px,17vw,70px) minmax(0,1fr);
 }
 #v-home .home-status > .wide {
-  grid-template-columns:56px minmax(0,1fr);
+  grid-template-columns:clamp(52px,17vw,70px) minmax(0,1fr);
 }
-#v-home .home-status span { padding-left:5px; }
-#v-home .home-status b { padding-right:6px; }
+#v-home .home-status span {
+  min-width:0;
+  padding:0 clamp(4px,1.6vw,7px);
+  white-space:nowrap;
+  font-size:clamp(10.5px,3.1vw,12.5px);
+}
+#v-home .home-status b {
+  min-width:0;
+  padding:0 clamp(5px,1.8vw,8px);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size:clamp(11px,3.3vw,13px);
+}
+@media (max-width:340px) {
+  #v-home .home-status > div {
+    grid-template-columns:50px minmax(0,1fr) 50px minmax(0,1fr);
+  }
+  #v-home .home-status > .wide {
+    grid-template-columns:50px minmax(0,1fr);
+  }
+}
 </style>
 </head>
 <body>
@@ -2700,7 +2754,7 @@ html { -webkit-text-size-adjust:100%; }
     <img id="homeHeroArt" class="home-hero-art" alt="">
   </div>
   <div class="home-status">
-    <div><span>職Lv</span><b id="homeJobLv">1/20</b><span>ゼニー</span><b id="homeGold"></b></div>
+    <div><span>職Lv</span><b id="homeJobLv">1/20</b><span>所持ぜにー</span><b id="homeGold"></b></div>
     <div><span>気力</span><b id="homeStamina"></b><span>武器Lv</span><b id="homeWeaponLv"></b></div>
     <div class="wide"><span>職Exp</span><b id="homeExp">0</b></div>
     <div class="wide"><span>オーブ</span><b id="homeOrb">なし</b></div>
