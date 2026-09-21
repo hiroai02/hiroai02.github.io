@@ -6369,8 +6369,9 @@ function loadLatestStarterArt() {
       const cctx = crop.getContext('2d');
       cctx.drawImage(sheet, panel * panelW, 0, panelW, panelH, 0, 0, crop.width, crop.height);
 
-      homeStarterPortraitCache[jobId] = crop.toDataURL('image/png');
-      if (typeof renderHome === 'function' && document.getElementById('v-home')?.classList.contains('active')) renderHome();
+      // Keep the raw panel private: showing it on My Page before extraction produces
+      // the visible rectangular/parchment frame. Home should only receive transparent art.
+      const rawStarterCrop = crop.toDataURL('image/png');
 
       const img = new Image();
       img.onload = () => {
@@ -6380,7 +6381,7 @@ function loadLatestStarterArt() {
         delete heroPortraitCache[jobId];
         refreshLatestStarterArtViews();
       };
-      img.src = homeStarterPortraitCache[jobId];
+      img.src = rawStarterCrop;
     }
   };
   sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-1902';
@@ -6492,6 +6493,42 @@ function extractSubject(img, flip) {
   for (let p = 0; p < w * h; p++) {
     if (!removed[p]) continue;
     d[p * 4 + 3] = 0;
+  }
+
+  // JPEG enemy sources can leave a thin white/off-white fringe after the main flood fill.
+  // Remove only pale pixels that TOUCH already-transparent background, in a few shallow passes.
+  // Enclosed white parts of the monster remain protected because they are not connected to the edge.
+  const fringe = new Uint8Array(w * h);
+  const isPaleBg = (p) => {
+    const i = p * 4, rr = d[i], gg = d[i + 1], bb = d[i + 2];
+    const hi = Math.max(rr, gg, bb), lo = Math.min(rr, gg, bb);
+    return lo > 208 && hi > 226 && (hi - lo) < 38;
+  };
+  for (let pass = 0; pass < 5; pass++) {
+    fringe.fill(0);
+    let found = 0;
+    for (let p = 0; p < w * h; p++) {
+      if (removed[p] || !isPaleBg(p)) continue;
+      const px = p % w, py = (p / w) | 0;
+      let touches = false;
+      for (let oy = -1; oy <= 1 && !touches; oy++) {
+        const ny = py + oy;
+        if (ny < 0 || ny >= h) continue;
+        for (let ox = -1; ox <= 1; ox++) {
+          if (ox === 0 && oy === 0) continue;
+          const nx = px + ox;
+          if (nx < 0 || nx >= w) continue;
+          if (removed[ny * w + nx]) { touches = true; break; }
+        }
+      }
+      if (touches) { fringe[p] = 1; found++; }
+    }
+    if (!found) break;
+    for (let p = 0; p < w * h; p++) {
+      if (!fringe[p]) continue;
+      removed[p] = 1;
+      d[p * 4 + 3] = 0;
+    }
   }
   // soften the cut edge: any surviving pixel touching a removed one fades a little, so the
   // silhouette doesn't end in a hard aliased ring
@@ -7905,7 +7942,7 @@ function renderTree() {
     <img class="tree-summary-icon" src="${getJobIcon(hero.job)}" alt="">
     <b>#${treeHeroIdx + 1} ${JOBS[hero.job].name}</b>
     <span>職Lv ${hero.lv}/${BAL.jobExp.maxLevel}</span>
-    <small>マスター ${save.mastered.length}/${Object.keys(JOBS).length}職</small>`;
+    <small>マスター ${save.mastered.length}/${Object.keys(JOBS).length}職　「転職可」の職業をタップで転職</small>`;
 }
 
 // --- training ---
@@ -7959,7 +7996,7 @@ function renderTraining() {
       <span class="training-mark">${({suburi:'斬',matoi:'射',dokyo:'術',hono:'祈'})[k.id] || '修'}</span>
       <span class="training-main">
         <b>${k.name}${fit ? ' <em>適性</em>' : ''}</b>
-        <small>${j.name}の職Expを得る${fit ? '（効果+30%）' : ''}</small>
+        <small>${fit ? `${j.name}に適性あり（職Exp +30%）` : `${j.name}の職Expを得る（適性補正なし）`}</small>
       </span>
       <button class="btn link" data-train="${k.id}" ${save.trainTickets <= 0 ? 'disabled' : ''}>修行する</button>
     </div>`;
