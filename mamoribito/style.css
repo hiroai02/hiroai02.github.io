@@ -1796,8 +1796,8 @@ body { min-width: 280px; }
 /* HOME STATUS REFERENCE WIDTH 2026-09-21 */
 .home-status,
 .home-bonus {
-  width:min(100%,320px);
-  max-width:320px;
+  width:100%;
+  max-width:520px;
   margin-left:auto;
   margin-right:auto;
 }
