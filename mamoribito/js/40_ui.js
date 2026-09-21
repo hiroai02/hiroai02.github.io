@@ -19,7 +19,14 @@ function renderHome() {
   document.getElementById('homeExp').textContent = hero.lv >= BAL.jobExp.maxLevel ? 'MASTER' : `${hero.exp}（あと${Math.max(0, need - hero.exp)}）`;
 
   const art = document.getElementById('homeHeroArt');
-  if (art) art.src = getHeroPortrait(hero.job);
+  if (art) {
+    const latestArt = window.REBUILD_HERO_ART && window.REBUILD_HERO_ART['hero_' + hero.job];
+    art.onerror = () => {
+      art.onerror = null;
+      art.src = getHeroPortrait(hero.job);
+    };
+    art.src = latestArt || getHeroPortrait(hero.job);
+  }
 
   const bonus = [];
   const labels = { questGold:'報酬金', trainExp:'修行EXP', questExp:'任務EXP', trainGreat:'大成功',
