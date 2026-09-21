@@ -6051,6 +6051,23 @@ const HERO_ART_FLIP = new Set(['yuusha', 'ningyoushi', 'dokuyashi']);
 // before its portrait finishes loading must NOT be stuck on the procedural fallback forever.
 const jobIconCache = {};
 const heroPortraitCache = {};
+const homeHeroCache = {};
+
+function getHomeHeroArt(jobId) {
+  if (homeHeroCache[jobId]) return homeHeroCache[jobId];
+  const art = heroArtCache[jobId];
+  if (!art) return getJobIcon(jobId);
+  const c = document.createElement('canvas');
+  c.width = 560; c.height = 720;
+  const ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  const scale = Math.min(520 / art.bw, 680 / art.bh);
+  const dw = art.bw * scale, dh = art.bh * scale;
+  ctx.drawImage(art.canvas, art.bx, art.by, art.bw, art.bh,
+    (c.width - dw) / 2, c.height - dh - 16, dw, dh);
+  return homeHeroCache[jobId] = c.toDataURL();
+}
 
 function getHeroPortrait(jobId) {
   const art = heroArtCache[jobId];
@@ -6223,6 +6240,7 @@ function loadHeroArt() {
       heroArtCache[jobId] = extractSubject(img, HERO_ART_FLIP.has(jobId));
       delete jobIconCache[jobId];
       delete heroPortraitCache[jobId];
+      delete homeHeroCache[jobId];
       if (typeof renderHome === 'function' && document.getElementById('v-home')?.classList.contains('active')) renderHome();
       if (typeof renderParty === 'function' && document.getElementById('v-party')?.classList.contains('active')) renderParty();
       if (typeof renderTree === 'function' && document.getElementById('v-tree')?.classList.contains('active')) renderTree();
@@ -7332,7 +7350,7 @@ function renderHome() {
     : `${hero.exp}<em>（あと${Math.max(0, need - hero.exp)}）</em>`;
 
   const art = document.getElementById('homeHeroArt');
-  if (art) art.src = getHeroPortrait(hero.job);
+  if (art) art.src = getHomeHeroArt(hero.job);
 
   const bonus = [];
   const labels = { questGold:'報酬金', trainExp:'修行EXP', questExp:'任務EXP', trainGreat:'大成功',
