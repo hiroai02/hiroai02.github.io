@@ -138,6 +138,7 @@ function getWeaponIcon(line, weaponLv) {
 }
 
 const heroArtCache = {};
+const homeStarterPortraitCache = {};
 function loadHeroArt() {
   const art = Object.assign({}, window.HERO_ART || {}, window.REBUILD_HERO_ART || {});
   for (const key of Object.keys(art)) {
@@ -169,8 +170,8 @@ function loadHeroArt() {
 function loadStarterJobSheet() {
   const crops = {
     ashigaru: [0, 0, .264, 1],
-    shashu: [.242, 0, .259, 1],
-    jumi: [.476, 0, .287, 1],
+    jumi: [.242, 0, .259, 1],
+    shashu: [.476, 0, .287, 1],
     kagura: [.716, 0, .284, 1],
   };
   const sheet = new Image();
@@ -182,6 +183,12 @@ function loadStarterJobSheet() {
       const cropCanvas = document.createElement('canvas');
       cropCanvas.width = sw; cropCanvas.height = sh;
       cropCanvas.getContext('2d').drawImage(sheet, sx, sy, sw, sh, 0, 0, sw, sh);
+
+      // Home must never depend on background-removal succeeding. Keep a raw crop of the
+      // approved latest starter sheet and use it as the My Page portrait source.
+      homeStarterPortraitCache[jobId] = cropCanvas.toDataURL('image/png');
+      if (typeof renderHome === 'function' && document.getElementById('v-home')?.classList.contains('active')) renderHome();
+
       const cropped = new Image();
       cropped.onload = () => {
         heroArtCache[jobId] = extractSubject(cropped, false);
@@ -192,10 +199,10 @@ function loadStarterJobSheet() {
         if (typeof renderParty === 'function' && document.getElementById('v-party')?.classList.contains('active')) renderParty();
         if (typeof renderTree === 'function' && document.getElementById('v-tree')?.classList.contains('active')) renderTree();
       };
-      cropped.src = cropCanvas.toDataURL('image/png');
+      cropped.src = homeStarterPortraitCache[jobId];
     }
   };
-  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-6';
+  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-7';
 }
 
 // Enemies share the same build.ps1 asset pipeline as heroes (any src/assets/<key>.jpg becomes
