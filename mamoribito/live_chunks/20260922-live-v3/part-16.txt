@@ -447,7 +447,7 @@ window.REBUILD_HERO_ART.hero_shashu = "data:image/webp;base64,UklGRlo0AABXRUJQVl
 // This file loads after the legacy 16_art_* overrides, so these 37 entries are the actual
 // source art used by the battle board, party screen, training screen and profession tree.
 window.REBUILD_HERO_ART = window.REBUILD_HERO_ART || {};
-window.MAMORIBITO_VISUAL_REV = '2026-09-22-V5-MID-DISTINCT';
+window.MAMORIBITO_VISUAL_REV = '2026-09-22-V7-ALLCLASS-HQ';
 
 (() => {
   const LINE = {
@@ -598,6 +598,51 @@ window.MAMORIBITO_VISUAL_REV = '2026-09-22-V5-MID-DISTINCT';
     return '';
   }
 
+
+  function starterTierExtras(id, c, t, d) {
+    if (id==='ashigaru') return '<path fill="'+t+'" stroke="'+d+'" stroke-width="5" d="M168 122h18l6 42h-19Z"/><path fill="none" stroke="'+t+'" stroke-width="4" d="M98 180q15 10 30 0"/>';
+    if (id==='shashu') return '<path fill="#6c4b32" stroke="'+d+'" stroke-width="5" d="M167 124h20l-7 55h-19Z"/><path fill="#d8d0a7" stroke="'+d+'" stroke-width="3" d="M171 132h7v14h-7Z"/><path stroke="#d8d0a7" stroke-width="3" d="M178 123l7-16"/>';
+    if (id==='jumi') return '<path fill="'+t+'" stroke="'+d+'" stroke-width="5" d="M94 113 77 130 95 147 111 130Z"/><path fill="none" stroke="'+t+'" stroke-width="4" d="M145 154q17 13 26 31"/>';
+    if (id==='kagura') return '<path fill="#f3efe4" stroke="'+d+'" stroke-width="4" d="M166 146 187 136 182 163 200 175 176 184 169 166Z"/><path fill="none" stroke="#c84c58" stroke-width="4" d="M183 141l-6 36"/>';
+    return '';
+  }
+
+  function tierArmorExtras(tier, c, t, d) {
+    if (tier===1) return '<path fill="none" stroke="'+t+'" stroke-width="4" d="M109 162Q128 171 147 162"/>';
+    if (tier===2) return '<path fill="'+t+'" opacity=".86" stroke="'+d+'" stroke-width="5" d="M101 128 79 138 84 158 108 150ZM155 128l22 10-5 20-23-8Z"/>';
+    if (tier===3) return '<path fill="'+t+'" stroke="'+d+'" stroke-width="6" d="M98 126 74 137 82 163 108 151ZM158 126l24 11-8 26-25-12Z"/><path fill="none" stroke="'+t+'" stroke-width="5" d="M101 191Q128 205 155 191"/>';
+    if (tier===4) return '<path fill="'+t+'" stroke="'+d+'" stroke-width="6" d="M96 124 68 137 78 166 109 151ZM160 124l28 13-10 29-31-15Z"/><path fill="#e8c96e" opacity=".35" stroke="'+d+'" stroke-width="4" d="M111 149h34l8 18-10 17h-30l-10-17Z"/>';
+    if (tier===5) return '<path fill="'+t+'" stroke="'+d+'" stroke-width="7" d="M94 121 62 137 75 171 111 151ZM162 121l32 16-13 34-36-20Z"/><path fill="#f0d772" opacity=".45" stroke="'+d+'" stroke-width="4" d="M108 145h40l10 20-11 20h-38l-11-20Z"/><path fill="none" stroke="#f0d772" stroke-width="5" d="M98 226Q128 245 158 226"/>';
+    if (tier>=6) return '<path fill="'+t+'" stroke="'+d+'" stroke-width="7" d="M92 118 57 136 72 174 112 151ZM164 118l35 18-15 38-40-23Z"/><path fill="#f6e7a7" opacity=".5" stroke="'+d+'" stroke-width="4" d="M106 143h44l11 21-12 22h-42l-12-22Z"/><path fill="none" stroke="#f6e7a7" stroke-width="6" d="M95 227Q128 249 161 227"/>';
+    return '';
+  }
+
+  function upperTierExtras(id, c, t, d) {
+    const common='stroke="'+d+'" stroke-linejoin="round" stroke-linecap="round"';
+    if (id==='odachi') return '<g '+common+'><path fill="'+t+'" stroke-width="7" d="M169 104 208 141 192 223 160 191Z"/><path fill="none" stroke="#d9dde0" stroke-width="8" d="M177 192 224 112"/><path fill="'+c+'" opacity=".8" stroke-width="6" d="M89 121 71 159 88 202 103 160Z"/></g>';
+    if (id==='nagae') return '<g '+common+'><path fill="'+c+'" stroke-width="6" d="M28 65 63 77 46 116 19 102Z"/><path fill="'+t+'" stroke-width="5" d="M32 73 56 81 45 103 25 95Z"/><path fill="none" stroke="'+t+'" stroke-width="6" d="M154 226l16 31M96 227 80 256"/></g>';
+    if (id==='karyudo') return '<g '+common+'><path fill="#6e583d" stroke-width="6" d="M165 106h22l18 28-12 87h-24l-10-82Z"/><path fill="#d8d0a7" stroke-width="4" d="M174 118h8v17h-8ZM184 139h8v17h-8ZM175 160h8v17h-8"/><path fill="none" stroke="#d8d0a7" stroke-width="4" d="M183 104l-4-24M191 110l6-26M199 118l14-22"/></g>';
+    if (id==='hamashi') return '<g '+common+'><circle cx="54" cy="149" r="18" fill="none" stroke="#e7d9f5" stroke-width="5"/><circle cx="54" cy="149" r="8" fill="#dcbf79" stroke-width="4"/><path fill="#f5e7b3" stroke-width="4" d="M182 108h22v40h-22ZM195 159h22v39h-22Z"/><path stroke="'+t+'" stroke-width="3" d="M188 117v22M201 168v22"/></g>';
+    if (id==='enjin') return '<g '+common+'><path fill="none" stroke="#ef7a35" stroke-width="8" d="M33 89Q13 118 39 142M42 70Q19 52 34 28M90 120Q111 100 97 77"/><circle cx="35" cy="89" r="6" fill="#ffd36a" stroke-width="4"/><circle cx="96" cy="80" r="5" fill="#ffd36a" stroke-width="4"/><path fill="none" stroke="#f6c16a" stroke-width="5" d="M161 156q31 12 40 42"/></g>';
+    if (id==='hyosetsu') return '<g '+common+' fill="#d8f4ff" stroke-width="4"><path d="M35 79 49 59 62 80 49 100Z"/><path d="M79 114 92 95 106 115 92 132Z"/><path d="M187 141 202 120 216 142 201 162Z"/></g><path fill="none" stroke="#e7f7ff" stroke-width="5" d="M31 114h34M48 97v34M186 141h31M201 126v31"/>';
+    if (id==='omiko') return '<g '+common+'><path fill="none" stroke="#f4eee3" stroke-width="9" d="M96 139Q70 181 80 236M161 139q28 41 14 95"/><path fill="none" stroke="#d23b51" stroke-width="6" d="M101 143Q80 181 89 230M155 143q22 36 13 83"/><circle cx="79" cy="238" r="9" fill="#d9b04b" stroke-width="5"/><circle cx="177" cy="238" r="9" fill="#d9b04b" stroke-width="5"/></g>';
+    if (id==='chobuku') return '<g '+common+' fill="#f5e7b3" stroke-width="4"><path d="M183 95h26v45h-26Z"/><path d="M200 148h26v46h-26Z"/><path d="M171 204h25v44h-25Z"/></g><path fill="none" stroke="#aeb4b8" stroke-width="6" stroke-dasharray="8 6" d="M82 179Q34 204 48 253"/>';
+    if (id==='nitomusha') return '<g '+common+'><path fill="'+t+'" stroke-width="6" d="M95 112 69 149 83 221 108 189Z"/><path fill="'+t+'" stroke-width="6" d="M161 112 188 149 174 221 148 189Z"/><path fill="none" stroke="#d9dde0" stroke-width="7" d="M92 189 61 121M163 189 195 121"/></g>';
+    if (id==='raifushi') return '<g '+common+'><path fill="#e7cf5c" stroke-width="5" d="M27 66 53 66 40 88 61 88 28 121 37 96 18 96Z"/><path fill="#e7cf5c" stroke-width="5" d="M185 122 211 122 198 145 220 145 186 177 195 153 175 153Z"/><path fill="none" stroke="#f6e083" stroke-width="5" d="M87 103Q114 82 128 96Q142 111 173 97"/></g>';
+    if (id==='reikyu') return '<g '+common+'><path fill="none" stroke="#d8f3df" stroke-width="5" d="M47 156q15-27 39 0-24 26-39 0Zm109-14q24-30 49 0-25 29-49 0Z"/><path fill="#d8f3df" stroke-width="4" d="M186 112 205 128 187 143 169 127Z"/></g>';
+    if (id==='jubaku') return '<g '+common+'><path fill="#f5e7b3" stroke-width="4" d="M182 102h22v39h-22ZM196 154h22v40h-22Z"/><path fill="none" stroke="#aeb4b8" stroke-width="7" stroke-dasharray="8 7" d="M85 152Q52 170 54 206Q57 235 90 244M171 150q34 18 31 54-4 27-34 39"/></g>';
+    if (id==='ningyoushi') return '<g '+common+'><path stroke="#8c7658" stroke-width="4" d="M37 96h39M58 82v28"/><g fill="'+c+'" stroke-width="5"><circle cx="42" cy="174" r="11"/><path d="M33 185h18l7 26H26Z"/><circle cx="86" cy="174" r="11"/><path d="M77 185h18l7 26H70Z"/></g><path stroke="#e6d7b3" stroke-width="3" d="M42 161V110M86 161V111"/></g>';
+    if (id==='bukyuushi') return '<g '+common+'><path fill="'+t+'" stroke-width="6" d="M173 120 201 135 189 200 163 188Z"/><path fill="none" stroke="#d9dde0" stroke-width="7" d="M165 155Q200 110 221 126"/><path fill="'+c+'" stroke-width="5" d="M84 136 66 162 83 186 102 161Z"/></g>';
+    if (id==='onikiri') return '<g '+common+'><path fill="'+t+'" stroke-width="7" d="M86 132 54 116 67 151 101 157ZM170 132l31-16-13 33-32 8Z"/><path fill="none" stroke="#f3d983" stroke-width="6" d="M93 211Q128 236 166 207"/><path fill="#f5e7b3" stroke-width="4" d="M188 121h23v41h-23Z"/></g>';
+    if (id==='daionmyo') return '<g '+common+' fill="#f5e7b3" stroke-width="4"><path d="M186 101h23v41h-23Z"/><path d="M200 151h23v42h-23Z"/><path d="M171 201h22v41h-22Z"/></g><path fill="none" stroke="#e7d9f5" stroke-width="5" d="M40 144Q58 117 75 144Q57 170 40 144Zm134-10Q194 106 214 134Q194 160 174 134Z"/>';
+    if (id==='byakko') return '<g '+common+'><path fill="none" stroke="#efe8d7" stroke-width="10" d="M81 238Q42 247 38 281M174 238q41 9 45 43"/><circle cx="87" cy="138" r="8" fill="#d9b04b" stroke-width="4"/><circle cx="172" cy="138" r="8" fill="#d9b04b" stroke-width="4"/></g>';
+    if (id==='kakurizato') return '<g '+common+'><path fill="'+t+'" stroke-width="6" d="M88 112 63 141 77 210 103 186Z"/><path fill="'+c+'" stroke-width="6" d="M168 112 195 144 182 212 155 186Z"/><path fill="none" stroke="#b9c5cf" stroke-width="5" d="M95 216Q128 234 162 214"/></g>';
+    if (id==='yuusha') return '<g '+common+'><path fill="'+c+'" opacity=".85" stroke-width="6" d="M92 124 71 159 86 233 111 212Z"/><path fill="'+t+'" stroke-width="6" d="M162 124 185 159 171 233 145 212Z"/><path fill="#f0d772" stroke-width="4" d="M128 112l10 17 19 4-13 15 2 20-18-8-18 8 2-20-13-15 19-4Z"/></g>';
+    if (id==='genjuukishi') return '<g '+common+'><path fill="'+t+'" stroke-width="6" d="M97 239 79 270 106 259M155 239l23 31-28-11"/><path fill="'+c+'" opacity=".84" stroke-width="6" d="M89 129 64 109 70 156 95 147ZM168 129l25-20-6 47-25-9Z"/></g>';
+    if (id==='onmyouji') return '<g '+common+' fill="#f5e7b3" stroke-width="4"><path d="M186 104h24v43h-24Z"/><path d="M199 156h24v44h-24Z"/></g><path fill="none" stroke="#e7d9f5" stroke-width="5" d="M45 145Q58 120 76 145Q58 171 45 145Zm130-3Q190 116 208 142Q190 168 175 142Z"/>';
+    return '';
+  }
+
   function build(id, spec) {
     const [line,tier,headType,weaponType,garmentType,accent] = spec;
     const p=LINE[line], c=accent||p.main, t=p.trim, d=p.dark;
@@ -608,7 +653,10 @@ window.MAMORIBITO_VISUAL_REV = '2026-09-22-V5-MID-DISTINCT';
       garment(garmentType,c,t,d,tier)+
       glovesBoots(t,d)+
       head(headType,c,t,d)+
+      starterTierExtras(id,c,t,d)+
       midTierExtras(id,c,t,d)+
+      upperTierExtras(id,c,t,d)+
+      tierArmorExtras(tier,c,t,d)+
       extras(id,tier,t,d)+
       '</g></svg>';
     return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
