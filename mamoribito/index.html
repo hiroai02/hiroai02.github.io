@@ -2676,6 +2676,21 @@ html { -webkit-text-size-adjust:100%; }
   .home-menu button:nth-child(-n+4) b { font-size:clamp(14px,4.5vw,17px); }
   .home-menu button:nth-child(-n+4) small { font-size:9px; }
 }
+
+/* HOME STATUS CELL PROPORTION FIX 2026-09-21 */
+.home-status > div:not(.wide) {
+  grid-template-columns:54px calc(50% - 54px) 76px calc(50% - 76px);
+}
+.home-status > div:not(.wide) > span:nth-of-type(2) {
+  padding-left:6px;
+  white-space:nowrap;
+}
+.home-status > div:not(.wide) > b {
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
 </style>
 </head>
 <body>
@@ -2691,7 +2706,7 @@ html { -webkit-text-size-adjust:100%; }
     <img id="homeHeroArt" class="home-hero-art" alt="">
   </div>
   <div class="home-status">
-    <div><span>職Lv</span><b id="homeJobLv">1/20</b><span>ゼニー</span><b id="homeGold"></b></div>
+    <div><span>職Lv</span><b id="homeJobLv">1/20</b><span>所持ぜにー</span><b id="homeGold"></b></div>
     <div><span>気力</span><b id="homeStamina"></b><span>武器Lv</span><b id="homeWeaponLv"></b></div>
     <div class="wide"><span>職Exp</span><b id="homeExp">0</b></div>
     <div class="wide"><span>オーブ</span><b id="homeOrb">なし</b></div>
