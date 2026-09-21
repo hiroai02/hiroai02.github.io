@@ -65,6 +65,15 @@ function renderHome() {
   ensureHomePhoneLayout();
   const hero = save.heroes[0];
   const j = JOBS[hero.job];
+
+  // Phone-width My Page layout. Inline sizing prevents older packed CSS from shrinking the
+  // status table back to the legacy ~190px width.
+  const homeStatus = document.querySelector('#v-home .home-status');
+  if (homeStatus) {
+    homeStatus.style.setProperty('width', 'calc(100% - 16px)', 'important');
+    homeStatus.style.setProperty('max-width', 'none', 'important');
+    homeStatus.style.setProperty('margin', '0 8px', 'important');
+  }
   const need = hero.lv < BAL.jobExp.maxLevel ? expNeeded(hero.job, hero.lv) : 0;
   const EN_LINE = { melee:'FENCER', ranged:'ARCHER', scout:'SCOUT', magic:'MAGE', disrupt:'HEXER', support:'SUPPORT' };
 
@@ -90,7 +99,9 @@ function renderHome() {
     };
     // Starter jobs are locked to starter-jobs-v4 via heroArtCache. Never point the
     // home screen back at an older embedded starter portrait.
-    art.src = isStarter ? approvedPortrait : (latestArt || approvedPortrait);
+    art.src = isStarter
+      ? ((typeof homeStarterPortraitCache !== 'undefined' && homeStarterPortraitCache[hero.job]) || approvedPortrait)
+      : (latestArt || approvedPortrait);
   }
 
   const bonus = [];
