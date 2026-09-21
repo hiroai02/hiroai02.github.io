@@ -233,10 +233,9 @@ function loadStarterJobSheet() {
       cropCanvas.width = sw; cropCanvas.height = sh;
       cropCanvas.getContext('2d').drawImage(sheet, sx, sy, sw, sh, 0, 0, sw, sh);
 
-      // Home must never depend on background-removal succeeding. Keep a raw crop of the
-      // approved latest starter sheet and use it as the My Page portrait source.
-      homeStarterPortraitCache[jobId] = cropCanvas.toDataURL('image/png');
-      if (typeof renderHome === 'function' && document.getElementById('v-home')?.classList.contains('active')) renderHome();
+      // Keep the raw panel private. My Page must only receive background-removed art,
+      // otherwise the sheet's rectangular parchment frame flashes or remains visible.
+      const rawStarterCrop = cropCanvas.toDataURL('image/png');
 
       const cropped = new Image();
       cropped.onload = () => {
@@ -249,7 +248,7 @@ function loadStarterJobSheet() {
         if (typeof renderParty === 'function' && document.getElementById('v-party')?.classList.contains('active')) renderParty();
         if (typeof renderTree === 'function' && document.getElementById('v-tree')?.classList.contains('active')) renderTree();
       };
-      cropped.src = homeStarterPortraitCache[jobId];
+      cropped.src = rawStarterCrop;
     }
   };
   sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-8';
@@ -339,6 +338,42 @@ function extractSubject(img, flip) {
   for (let p = 0; p < w * h; p++) {
     if (!removed[p]) continue;
     d[p * 4 + 3] = 0;
+  }
+
+  // Opaque JPEG enemy sources can leave a white/off-white compression fringe after flood fill.
+  // Erode only pale pixels connected to the already-cleared background, so enclosed white
+  // details on the monster are preserved.
+  const fringe = new Uint8Array(w * h);
+  const isPaleBg = (p) => {
+    const i = p * 4, rr = d[i], gg = d[i + 1], bb = d[i + 2];
+    const hi = Math.max(rr, gg, bb), lo = Math.min(rr, gg, bb);
+    return lo > 208 && hi > 226 && (hi - lo) < 38;
+  };
+  for (let pass = 0; pass < 5; pass++) {
+    fringe.fill(0);
+    let found = 0;
+    for (let p = 0; p < w * h; p++) {
+      if (removed[p] || !isPaleBg(p)) continue;
+      const px = p % w, py = (p / w) | 0;
+      let touches = false;
+      for (let oy = -1; oy <= 1 && !touches; oy++) {
+        const ny = py + oy;
+        if (ny < 0 || ny >= h) continue;
+        for (let ox = -1; ox <= 1; ox++) {
+          if (ox === 0 && oy === 0) continue;
+          const nx = px + ox;
+          if (nx < 0 || nx >= w) continue;
+          if (removed[ny * w + nx]) { touches = true; break; }
+        }
+      }
+      if (touches) { fringe[p] = 1; found++; }
+    }
+    if (!found) break;
+    for (let p = 0; p < w * h; p++) {
+      if (!fringe[p]) continue;
+      removed[p] = 1;
+      d[p * 4 + 3] = 0;
+    }
   }
   // soften the cut edge: any surviving pixel touching a removed one fades a little, so the
   // silhouette doesn't end in a hard aliased ring
