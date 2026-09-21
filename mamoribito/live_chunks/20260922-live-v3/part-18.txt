@@ -958,7 +958,7 @@ function renderTree() {
 
 // --- training ---
 const TRAINING_TEST_UNLIMITED = true;
-window.MAMORIBITO_TEST_REV = '20260922-live-v4';
+window.MAMORIBITO_TEST_REV = '20260922-live-v5-hq';
 const TRAIN_KINDS = [
   { id: 'suburi', name: '素振り', line: 'melee' },
   { id: 'matoi', name: '的射', line: 'ranged' },
