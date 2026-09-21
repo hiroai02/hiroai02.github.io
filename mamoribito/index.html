@@ -1714,6 +1714,8 @@ body { min-width: 280px; }
 /* FINAL REFERENCE PROPORTION PASS */
 /* 320px surviving screenshots: hero stage ~124px, quest guide+bubble ~155px. */
 .home-hero {
+  width:100%;
+  max-width:520px;
   height:clamp(124px,39vw,222px);
 }
 .home-hero-art {
@@ -5720,9 +5722,12 @@ function fitBoard() {
   const c = document.getElementById('board');
   const logicalW = Math.max(280, Math.floor(Math.min(window.innerWidth, 568)));
 
-  // Surviving battle screenshots show a compact near-square combat field. Do not stretch
-  // unit Y positions to fill a modern tall phone; preserve the original formation ratio.
-  const logicalH = Math.max(240, Math.floor(logicalW * 0.86));
+  // Give a portrait phone enough field height without stretching individual characters.
+  // Keep the square composition on shorter displays; cap the height to preserve the lanes.
+  const headerH = document.querySelector('.battle-head')?.getBoundingClientRect().height || 0;
+  const availableH = Math.max(240, window.innerHeight - headerH - 12);
+  const logicalH = Math.max(240, Math.floor(Math.max(logicalW * 0.86,
+    Math.min(availableH, logicalW * 1.3))));
 
   // High-DPI render: keep the exact same layout in CSS pixels but render up to 2x internally
   // so generated job/enemy art and the painted background stay crisp on modern phones.
@@ -6208,8 +6213,8 @@ function getWeaponIcon(line, weaponLv) {
 const heroArtCache = {};
 function loadHeroArt() {
   // Existing build assets stay available as fallbacks until Rebuild V2 passes runtime QA.
-  // Newly rebuilt portraits override only the matching keys, so validation is reversible.
-  const art = Object.assign({}, window.HERO_ART || {}, window.REBUILD_HERO_ART || {});
+  // Use the more detailed portraits when available; the vector set fills missing jobs.
+  const art = Object.assign({}, window.REBUILD_HERO_ART || {}, window.HERO_ART || {});
   for (const key of Object.keys(art)) {
     if (!key.startsWith('hero_')) continue;
     const jobId = key.slice(5);
