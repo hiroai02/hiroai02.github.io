@@ -57,12 +57,14 @@ jobs:
               text = text[:src_pos] + new_src + text[src_pos + len(old_src):]
               changed = True
 
-          # Mid-tier V4: make every tier-2 profession read as a different silhouette,
+          # Mid-tier V5: make every tier-2 profession read as a different silhouette,
           # not a recolour of the old/basic class. The renderer already supports all
           # of these equipment types; this changes headgear, weapon and garment together.
           replacements = {
+              "window.MAMORIBITO_VISUAL_REV = '2026-09-21-V4-MID';":
+                  "window.MAMORIBITO_VISUAL_REV = '2026-09-22-V5-MID-DISTINCT';",
               "window.MAMORIBITO_VISUAL_REV = '2026-09-21-V3';":
-                  "window.MAMORIBITO_VISUAL_REV = '2026-09-21-V4-MID';",
+                  "window.MAMORIBITO_VISUAL_REV = '2026-09-22-V5-MID-DISTINCT';",
               "    samurai:     ['melee',2,'kabuto','katana','coat','#a44735'],":
                   "    samurai:     ['melee',2,'kabuto','katana','armored','#8b332b'],",
               "    yariashi:    ['melee',2,'jingasa','spear','coat','#a77a45'],":
@@ -100,7 +102,7 @@ jobs:
           # The live bundle contains a self-embedded source copy plus the executable copy.
           # At least the executable copy must carry the new visual revision and all 12 tier-2 specs.
           required_new = [
-              "window.MAMORIBITO_VISUAL_REV = '2026-09-21-V4-MID';",
+              "window.MAMORIBITO_VISUAL_REV = '2026-09-22-V5-MID-DISTINCT';",
               "samurai:     ['melee',2,'kabuto','katana','armored','#8b332b']",
               "yariashi:    ['melee',2,'jingasa','longspear','longcoat','#9a6a35']",
               "kyousenshi:  ['melee',2,'hornhelm','ogreblade','armored','#672523']",
@@ -116,7 +118,50 @@ jobs:
           ]
           missing = [needle for needle in required_new if needle not in text]
           if missing:
-              raise SystemExit("mid-tier V4 markers missing: " + repr(missing))
+              raise SystemExit("mid-tier V5 markers missing: " + repr(missing))
+
+          # Give every tier-2 job an unmistakable profession-specific silhouette.
+          # These are equipment/accessory-only overlays: no face, skin or body is drawn.
+          # Dominant weapons stay on the left-facing side of the composition.
+          if "function midTierExtras(id, c, t, d)" not in text:
+              build_marker = "  function build(id, spec) {"
+              build_pos = text.rfind(build_marker)
+              if build_pos < 0:
+                  raise SystemExit("active profession build function not found")
+              mid_extras = r'''  function midTierExtras(id, c, t, d) {
+    const common='stroke="'+d+'" stroke-linejoin="round" stroke-linecap="round"';
+    if (id==='samurai') return '<g '+common+'><path fill="'+t+'" stroke-width="7" d="M91 132 70 143 82 166 104 151ZM165 132l22 11-13 23-22-15Z"/><path fill="none" stroke="'+t+'" stroke-width="8" d="M101 218Q128 229 156 216"/><path fill="none" stroke="#d9dde0" stroke-width="10" d="M181 197 219 126"/><path stroke="'+t+'" stroke-width="12" d="M172 194h28"/></g>';
+    if (id==='yariashi') return '<g '+common+'><path fill="'+c+'" stroke-width="6" d="M22 78 58 90 47 128 27 112Z"/><path fill="'+t+'" stroke-width="5" d="M28 86 52 94 47 105 25 99Z"/><path fill="none" stroke="'+t+'" stroke-width="7" d="M97 224 83 257M156 226l13 28"/></g>';
+    if (id==='kyousenshi') return '<g '+common+'><path fill="'+t+'" stroke-width="7" d="M88 135 57 119 70 151 101 158ZM168 135l31-16-13 32-31 7Z"/><path fill="none" stroke="#aeb4b8" stroke-width="7" stroke-dasharray="9 6" d="M92 211Q128 232 166 207"/><path fill="'+t+'" stroke-width="5" d="M70 151 55 166 78 171ZM186 151l16 15-24 5Z"/></g>';
+    if (id==='sogeki') return '<g '+common+'><path fill="'+c+'" stroke-width="7" d="M174 121 204 130 191 225 164 216Z"/><path stroke="#d9dde0" stroke-width="5" d="M176 132 188 86M185 135l18-44M193 139l22-38"/><path fill="'+t+'" stroke-width="5" d="M184 84 194 92 187 103ZM200 89l10 8-9 10ZM214 99l9 8-10 9Z"/></g>';
+    if (id==='meigen') return '<g '+common+'><circle cx="51" cy="153" r="17" fill="none" stroke="#d8f3df" stroke-width="5"/><path fill="#f5e7b3" stroke-width="4" d="M183 104h26v44h-26ZM197 157h25v44h-25ZM173 211h24v40h-24Z"/><path stroke="'+t+'" stroke-width="3" d="M190 113v25M204 166v25M180 219v23"/></g>';
+    if (id==='fufushi') return '<g '+common+'><path fill="none" stroke="#ef7a35" stroke-width="8" d="M36 82Q17 109 39 132M42 64Q18 45 34 24M88 119Q109 99 96 75"/><circle cx="36" cy="82" r="6" fill="#ffd36a" stroke="'+d+'" stroke-width="4"/><circle cx="94" cy="80" r="5" fill="#ffd36a" stroke="'+d+'" stroke-width="4"/></g>';
+    if (id==='hyofushi') return '<g '+common+' fill="#c7edfa" stroke-width="5"><path d="M35 80 48 61 59 82 47 98Z"/><path d="M87 111 99 93 110 112 98 128Z"/><path d="M190 145 202 126 214 146 202 162Z"/><path fill="none" stroke="#8ed0ea" stroke-width="5" d="M31 111 61 111M46 96v31"/></g>';
+    if (id==='kunoichi') return '<g '+common+'><path fill="'+t+'" stroke-width="6" d="M159 93Q204 88 226 112 191 111 170 126Z"/><path fill="'+c+'" stroke-width="6" d="M164 109Q211 121 222 151 190 137 166 139Z"/><rect x="153" y="205" width="27" height="32" rx="6" fill="'+t+'" stroke-width="6"/><rect x="184" y="198" width="25" height="31" rx="6" fill="'+c+'" stroke-width="6"/></g>';
+    if (id==='miko') return '<g '+common+'><path fill="none" stroke="#f4eee3" stroke-width="9" d="M96 142Q71 180 82 232M160 142q27 38 14 90"/><path fill="none" stroke="#d23b51" stroke-width="6" d="M101 145Q79 180 88 225M155 145q23 35 13 80"/><circle cx="79" cy="234" r="9" fill="#d9b04b" stroke-width="5"/><circle cx="176" cy="234" r="9" fill="#d9b04b" stroke-width="5"/></g>';
+    if (id==='haraite') return '<g '+common+' fill="#f5e7b3" stroke-width="4"><path d="M183 96h27v48h-27Z"/><path d="M199 151h27v48h-27Z"/><path d="M173 207h27v46h-27Z"/><path d="M40 211h25v43H40Z"/><path stroke="'+t+'" stroke-width="3" d="M190 105v28M206 160v28M180 216v27M47 220v25"/></g>';
+    if (id==='dokuyashi') return '<g '+common+'><g fill="#6f9f4b" stroke-width="5"><path d="M169 202h20l5 36h-30Z"/><path d="M195 196h20l7 38h-31Z"/><circle cx="179" cy="203" r="7"/><circle cx="205" cy="197" r="7"/></g><path fill="none" stroke="#9fd365" stroke-width="5" d="M44 116 27 103M47 129 25 123M50 143 27 143"/></g>';
+    if (id==='douchi') return '<g '+common+'><path fill="none" stroke="#d8b05f" stroke-width="8" d="M24 143Q58 91 94 143Q58 198 24 143Z"/><path fill="none" stroke="'+t+'" stroke-width="6" d="M26 143Q58 111 91 143Q58 178 26 143Z"/><path fill="'+c+'" stroke-width="5" d="M55 187 44 217 61 245 76 215Z"/></g>';
+    return '';
+  }
+
+'''
+              text = text[:build_pos] + mid_extras + text[build_pos:]
+              changed = True
+
+          build_pos = text.rfind("  function build(id, spec) {")
+          build_end = text.find("  for (const [id,spec]", build_pos)
+          if build_pos < 0 or build_end < 0:
+              raise SystemExit("active profession build block not found")
+          build_block = text[build_pos:build_end]
+          old_build = "      head(headType,c,t,d)+\n      extras(id,tier,t,d)+"
+          new_build = "      head(headType,c,t,d)+\n      midTierExtras(id,c,t,d)+\n      extras(id,tier,t,d)+"
+          if old_build in build_block:
+              build_block = build_block.replace(old_build, new_build, 1)
+              text = text[:build_pos] + build_block + text[build_end:]
+              changed = True
+          elif "midTierExtras(id,c,t,d)+" not in build_block:
+              raise SystemExit("mid-tier extras hook missing")
 
           func_pos = text.rfind(marker)
           end = text.find("function darken", func_pos)
