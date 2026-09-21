@@ -99,9 +99,8 @@ function renderHome() {
     };
     // Starter jobs are locked to starter-jobs-v4 via heroArtCache. Never point the
     // home screen back at an older embedded starter portrait.
-    const starterReady = isStarter && typeof heroArtCache !== 'undefined' && !!heroArtCache[hero.job];
     art.src = isStarter
-      ? (starterReady ? approvedPortrait : ((typeof homeStarterPortraitCache !== 'undefined' && homeStarterPortraitCache[hero.job]) || approvedPortrait))
+      ? approvedPortrait
       : (latestArt || approvedPortrait);
   }
 
@@ -490,7 +489,7 @@ function renderTree() {
   }).join('');
 
   el.innerHTML = treesHtml + `<div class="card"><h3>複合職・特殊職</h3>${hybridHtml}</div>`;
-  document.getElementById('treeSummary').innerHTML = `<b>マスター</b><span>${save.mastered.length} / ${Object.keys(JOBS).length} 職</span><small>#${treeHeroIdx + 1} ${JOBS[hero.job].name}を選択中</small>`;
+  document.getElementById('treeSummary').innerHTML = `<b>マスター</b><span>${save.mastered.length} / ${Object.keys(JOBS).length} 職</span><small>#${treeHeroIdx + 1} ${JOBS[hero.job].name}を選択中　「転職可」をタップで転職</small>`;
 }
 
 // --- training ---
@@ -540,7 +539,7 @@ function renderTraining() {
       <span class="training-mark">${({suburi:'斬',matoi:'射',dokyo:'術',hono:'祈'})[k.id] || '修'}</span>
       <span class="training-main">
         <b>${k.name}${fit ? ' <em>適性</em>' : ''}</b>
-        <small>${j.name}の職Expを得る${fit ? '（効果+30%）' : ''}</small>
+        <small>${fit ? `${j.name}に適性あり（職Exp +30%）` : `${j.name}の職Expを得る（適性補正なし）`}</small>
       </span>
       <button class="btn link" data-train="${k.id}" ${save.trainTickets <= 0 ? 'disabled' : ''}>修行する</button>
     </div>`;
