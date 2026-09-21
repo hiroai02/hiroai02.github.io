@@ -6035,10 +6035,8 @@ function finishQuest(won, retired = false) {
 // The readable class silhouette comes from oversized equipment and props, matching the original
 // series' defining "まもりびと" visual grammar while using newly generated designs.
 
-// Hero art pipeline: window.HERO_ART contains legacy build assets while
-// window.REBUILD_HERO_ART contains validated Rebuild V2 overrides. The latter wins per key.
-// Legacy JPEGs and current Rebuild V2 WebP may carry flat/checkerboard backgrounds; future
-// cutouts may already have alpha. extractSubject() handles both paths and caches battle + UI art.
+// Hero art pipeline. Starter jobs are loaded only from assets/starter-jobs-v4.webp.
+// Other approved art can come from window.HERO_ART. Obsolete starter-art fallback support is removed.
 // Every character faces the same way (left) for a consistent battle-line look. Most generated
 // art already comes out facing left; jobs whose source image faces right are listed here and
 // get mirrored once at load time (president: キャラは全員左向きに統一).
@@ -6282,7 +6280,7 @@ function loadStarterJobSheet() {
       cropped.src = cropCanvas.toDataURL('image/png');
     }
   };
-  sheet.src = 'assets/starter-jobs-v4.webp';
+  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-2';
 }
 
 // Enemies share the same build.ps1 asset pipeline as heroes (any src/assets/<key>.jpg becomes
