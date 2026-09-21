@@ -14,57 +14,121 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Inline approved advanced profession art
+      - name: Patch hosted profession art
         shell: python
         run: |
           from pathlib import Path
 
           index = Path("mamoribito/index.html")
           text = index.read_text(encoding="utf-8")
+          changed = False
 
-          parts = []
-          for i in range(7):
-              p = Path(f"mamoribito/art_chunks/advanced_jobs_v1.b64.{i:02d}")
-              parts.append("".join(p.read_text(encoding="utf-8").split()))
-          sheet_b64 = "".join(parts)
-
+          # Keep the approved advanced-class sprite sheet physically inside the live HTML.
           marker = "async function loadAdvancedJobSheet()"
           func_pos = text.rfind(marker)
           if func_pos < 0:
               raise SystemExit("active loadAdvancedJobSheet not found")
 
-          setup_old_start = "    const version = '20260921-advanced-v1';"
-          setup_start = text.find(setup_old_start, func_pos)
-          setup_end = text.find("    const sheet = new Image();", setup_start)
-          if setup_start < 0 or setup_end < 0:
-              if "MAMORIBITO_ADVANCED_ART_REV = '20260921-inline-v2'" in text[func_pos:]:
-                  print("already patched")
-                  raise SystemExit(0)
-              raise SystemExit("loader setup block not found")
+          if "MAMORIBITO_ADVANCED_ART_REV = '20260921-inline-v2'" not in text[func_pos:]:
+              parts = []
+              for i in range(7):
+                  p = Path(f"mamoribito/art_chunks/advanced_jobs_v1.b64.{i:02d}")
+                  parts.append("".join(p.read_text(encoding="utf-8").split()))
+              sheet_b64 = "".join(parts)
 
-          setup_new = (
-              "    window.MAMORIBITO_ADVANCED_ART_REV = '20260921-inline-v2';\n"
-              f"    const sheetB64 = '{sheet_b64}';\n"
-          )
-          text = text[:setup_start] + setup_new + text[setup_end:]
+              setup_old_start = "    const version = '20260921-advanced-v1';"
+              setup_start = text.find(setup_old_start, func_pos)
+              setup_end = text.find("    const sheet = new Image();", setup_start)
+              if setup_start < 0 or setup_end < 0:
+                  raise SystemExit("advanced loader setup block not found")
+
+              setup_new = (
+                  "    window.MAMORIBITO_ADVANCED_ART_REV = '20260921-inline-v2';\n"
+                  f"    const sheetB64 = '{sheet_b64}';\n"
+              )
+              text = text[:setup_start] + setup_new + text[setup_end:]
+
+              func_pos = text.rfind(marker)
+              old_src = "    sheet.src = 'data:image/webp;base64,' + parts.join('');"
+              src_pos = text.find(old_src, func_pos)
+              if src_pos < 0:
+                  raise SystemExit("advanced sheet source block not found")
+              new_src = "    sheet.src = 'data:image/webp;base64,' + sheetB64;"
+              text = text[:src_pos] + new_src + text[src_pos + len(old_src):]
+              changed = True
+
+          # Mid-tier V4: make every tier-2 profession read as a different silhouette,
+          # not a recolour of the old/basic class. The renderer already supports all
+          # of these equipment types; this changes headgear, weapon and garment together.
+          replacements = {
+              "window.MAMORIBITO_VISUAL_REV = '2026-09-21-V3';":
+                  "window.MAMORIBITO_VISUAL_REV = '2026-09-21-V4-MID';",
+              "    samurai:     ['melee',2,'kabuto','katana','coat','#a44735'],":
+                  "    samurai:     ['melee',2,'kabuto','katana','armored','#8b332b'],",
+              "    yariashi:    ['melee',2,'jingasa','spear','coat','#a77a45'],":
+                  "    yariashi:    ['melee',2,'jingasa','longspear','longcoat','#9a6a35'],",
+              "    kyousenshi:  ['melee',2,'hornhelm','greatblade','coat','#8f3430'],":
+                  "    kyousenshi:  ['melee',2,'hornhelm','ogreblade','armored','#672523'],",
+              "    sogeki:      ['ranged',2,'archer','longbow','coat','#56784d'],":
+                  "    sogeki:      ['ranged',2,'furcap','recurve','longcoat','#426742'],",
+              "    meigen:      ['disrupt',2,'archer','ritualbow','robe','#74648b'],":
+                  "    meigen:      ['disrupt',2,'spiritcap','ritualbow','longrobe','#665080'],",
+              "    fufushi:     ['magic',2,'cowl','firestaff','robe','#b84c39'],":
+                  "    fufushi:     ['magic',2,'ritual','flamestaff','longrobe','#bf3c2d'],",
+              "    hyofushi:    ['disrupt',2,'cowl','icestaff','robe','#5d78a5'],":
+                  "    hyofushi:    ['disrupt',2,'cowl','froststaff','longrobe','#456fa1'],",
+              "    kunoichi:    ['scout',2,'hood','dualkunai','coat','#4a5a6a'],":
+                  "    kunoichi:    ['scout',2,'shadowhelm','dualkunai','armored','#354653'],",
+              "    miko:        ['support',2,'veil','gohei','robe','#d34855'],":
+                  "    miko:        ['support',2,'crownveil','greatgohei','longrobe','#d23b51'],",
+              "    haraite:     ['disrupt',2,'veil','ofuda','robe','#725583'],":
+                  "    haraite:     ['disrupt',2,'ritual','chainseal','longrobe','#604678'],",
+              "    dokuyashi:   ['ranged',2,'archer','poisonbow','coat','#617b46'],":
+                  "    dokuyashi:   ['ranged',2,'hood','poisonbow','longcoat','#4f7639'],",
+              "    douchi:      ['support',2,'headband','gong','coat','#a16442'],":
+                  "    douchi:      ['support',2,'eboshi','gong','armored','#9a5535'],",
+          }
+
+          replaced = {}
+          for old, new in replacements.items():
+              count = text.count(old)
+              if count:
+                  text = text.replace(old, new)
+                  replaced[old.split(":")[0].strip()] = count
+                  changed = True
+
+          # The live bundle contains a self-embedded source copy plus the executable copy.
+          # At least the executable copy must carry the new visual revision and all 12 tier-2 specs.
+          required_new = [
+              "window.MAMORIBITO_VISUAL_REV = '2026-09-21-V4-MID';",
+              "samurai:     ['melee',2,'kabuto','katana','armored','#8b332b']",
+              "yariashi:    ['melee',2,'jingasa','longspear','longcoat','#9a6a35']",
+              "kyousenshi:  ['melee',2,'hornhelm','ogreblade','armored','#672523']",
+              "sogeki:      ['ranged',2,'furcap','recurve','longcoat','#426742']",
+              "meigen:      ['disrupt',2,'spiritcap','ritualbow','longrobe','#665080']",
+              "fufushi:     ['magic',2,'ritual','flamestaff','longrobe','#bf3c2d']",
+              "hyofushi:    ['disrupt',2,'cowl','froststaff','longrobe','#456fa1']",
+              "kunoichi:    ['scout',2,'shadowhelm','dualkunai','armored','#354653']",
+              "miko:        ['support',2,'crownveil','greatgohei','longrobe','#d23b51']",
+              "haraite:     ['disrupt',2,'ritual','chainseal','longrobe','#604678']",
+              "dokuyashi:   ['ranged',2,'hood','poisonbow','longcoat','#4f7639']",
+              "douchi:      ['support',2,'eboshi','gong','armored','#9a5535']",
+          ]
+          missing = [needle for needle in required_new if needle not in text]
+          if missing:
+              raise SystemExit("mid-tier V4 markers missing: " + repr(missing))
 
           func_pos = text.rfind(marker)
-          old_src = "    sheet.src = 'data:image/webp;base64,' + parts.join('');"
-          src_pos = text.find(old_src, func_pos)
-          if src_pos < 0:
-              raise SystemExit("sheet source block not found")
-          new_src = "    sheet.src = 'data:image/webp;base64,' + sheetB64;"
-          text = text[:src_pos] + new_src + text[src_pos + len(old_src):]
-
           end = text.find("function darken", func_pos)
           active = text[func_pos:end]
           if "fetch(url" in active or "parts.join" in active:
-              raise SystemExit("network loader still remains")
-          if "20260921-inline-v2" not in active:
-              raise SystemExit("revision marker missing")
+              raise SystemExit("network advanced-art loader returned")
 
-          index.write_text(text, encoding="utf-8")
-          print("patched", len(sheet_b64), "base64 chars into live index")
+          if changed:
+              index.write_text(text, encoding="utf-8")
+              print("patched live art; replacement counts:", replaced)
+          else:
+              print("live art already up to date")
 
       - name: Commit live build patch
         shell: bash
@@ -76,5 +140,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add mamoribito/index.html
-          git commit -m "fix: inline advanced job art in live build"
+          git commit -m "art: refresh all mid-tier profession silhouettes"
           git push
