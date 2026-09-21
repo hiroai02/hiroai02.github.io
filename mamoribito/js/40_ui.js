@@ -99,8 +99,9 @@ function renderHome() {
     };
     // Starter jobs are locked to starter-jobs-v4 via heroArtCache. Never point the
     // home screen back at an older embedded starter portrait.
+    const starterReady = isStarter && typeof heroArtCache !== 'undefined' && !!heroArtCache[hero.job];
     art.src = isStarter
-      ? ((typeof homeStarterPortraitCache !== 'undefined' && homeStarterPortraitCache[hero.job]) || approvedPortrait)
+      ? (starterReady ? approvedPortrait : ((typeof homeStarterPortraitCache !== 'undefined' && homeStarterPortraitCache[hero.job]) || approvedPortrait))
       : (latestArt || approvedPortrait);
   }
 
