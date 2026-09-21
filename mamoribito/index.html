@@ -523,6 +523,8 @@ body { min-width: 280px; }
   filter:drop-shadow(0 4px 2px rgba(0,0,0,.22));
 }
 .home-status {
+  width:100%;
+  max-width:520px;
   background:#f5eac8;
   border-top:1px solid #c9b889;
   border-bottom:1px solid #bca879;
@@ -547,6 +549,8 @@ body { min-width: 280px; }
   padding-right:10px;
 }
 .home-bonus {
+  width:100%;
+  max-width:520px;
   min-height:28px;
   padding:5px 8px;
   background:#fff9e6;
@@ -6252,6 +6256,39 @@ function loadHeroArt() {
   }
 }
 
+// The latest approved four-job sheet. These exact designs replace the older starter portraits.
+function loadStarterJobSheet() {
+  const crops = {
+    ashigaru: [0, 0, .264, 1],
+    shashu: [.242, 0, .259, 1],
+    jumi: [.476, 0, .287, 1],
+    kagura: [.716, 0, .284, 1],
+  };
+  const sheet = new Image();
+  sheet.onload = () => {
+    for (const [jobId, crop] of Object.entries(crops)) {
+      const [rx, ry, rw, rh] = crop;
+      const sx = Math.round(sheet.naturalWidth * rx), sy = Math.round(sheet.naturalHeight * ry);
+      const sw = Math.round(sheet.naturalWidth * rw), sh = Math.round(sheet.naturalHeight * rh);
+      const cropCanvas = document.createElement('canvas');
+      cropCanvas.width = sw; cropCanvas.height = sh;
+      cropCanvas.getContext('2d').drawImage(sheet, sx, sy, sw, sh, 0, 0, sw, sh);
+      const cropped = new Image();
+      cropped.onload = () => {
+        heroArtCache[jobId] = extractSubject(cropped, false);
+        delete jobIconCache[jobId];
+        delete heroPortraitCache[jobId];
+        delete homeHeroCache[jobId];
+        if (typeof renderHome === 'function' && document.getElementById('v-home')?.classList.contains('active')) renderHome();
+        if (typeof renderParty === 'function' && document.getElementById('v-party')?.classList.contains('active')) renderParty();
+        if (typeof renderTree === 'function' && document.getElementById('v-tree')?.classList.contains('active')) renderTree();
+      };
+      cropped.src = cropCanvas.toDataURL('image/png');
+    }
+  };
+  sheet.src = 'assets/starter-jobs-v4.webp';
+}
+
 // Enemies share the same build.ps1 asset pipeline as heroes (any src/assets/<key>.jpg becomes
 // window.HERO_ART[key]) - files named enemy_<id>.jpg just use the "enemy_" prefix instead, so no
 // build-script changes were needed to add real enemy art on top of the existing hero art.
@@ -6359,6 +6396,7 @@ function extractSubject(img, flip) {
   return { canvas: c, bx: minX, by: minY, bw: maxX - minX + 1, bh: maxY - minY + 1 };
 }
 loadHeroArt();
+loadStarterJobSheet();
 loadEnemyArt();
 
 // Stage backgrounds are presentation only. FIDELITY_LOCK.md owns the immutable combat geometry:
