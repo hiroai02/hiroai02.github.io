@@ -22,6 +22,17 @@ if (window.REBUILD_HERO_ART) {
   for (const jobId of STARTER_JOB_IDS) delete window.REBUILD_HERO_ART['hero_' + jobId];
 }
 
+// Approved upper / combined / special-class portraits.
+// Fidelity lock: every profession faces LEFT; no visible human body, face or skin;
+// the character is an invisible wearer represented only by hollow equipment/clothing.
+// The order matches the 5x3 transparent sprite sheet assembled for the hosted build.
+const ADVANCED_JOB_ORDER = [
+  'odachi', 'nagae', 'karyudo', 'hyosetsu', 'enjin',
+  'omiko', 'ningyoushi', 'nitomusha', 'reikyu', 'raifushi',
+  'jubaku', 'onikiri', 'onmyouji',
+];
+const ADVANCED_JOB_IDS = new Set(ADVANCED_JOB_ORDER);
+
 // Small per-job icon for non-battle UI (job tree, etc.): the real portrait's face region when
 // one exists, otherwise a mini procedural helmet (drawHeadgear) in the job's own colour - every
 // job gets a distinct icon even the ones without generated art yet. Only the real-art case is
@@ -53,9 +64,15 @@ function getJobIcon(jobId) {
     const c = document.createElement('canvas');
     c.width = size; c.height = size;
     const ctx = c.getContext('2d');
-    const side = Math.min(art.bw, art.bh);
-    const sx = art.bx + (art.bw - side) / 2, sy = art.by;
-    ctx.drawImage(art.canvas, sx, sy, side, Math.min(side, art.bh - (sy - art.by)), 0, 0, size, size);
+    // Fit the WHOLE hollow-equipment silhouette. Cropping a square from the top used to
+    // cut long bows, spears, blades and robes, making different professions look too similar.
+    const pad = 3;
+    const scale = Math.min((size - pad * 2) / art.bw, (size - pad * 2) / art.bh);
+    const dw = art.bw * scale, dh = art.bh * scale;
+    ctx.drawImage(
+      art.canvas, art.bx, art.by, art.bw, art.bh,
+      (size - dw) / 2, size - pad - dh, dw, dh
+    );
     const url = c.toDataURL();
     jobIconCache[jobId] = url;
     return url;
@@ -145,6 +162,7 @@ function loadHeroArt() {
     if (!key.startsWith('hero_')) continue;
     const jobId = key.slice(5);
     if (STARTER_JOB_IDS.has(jobId)) continue;
+    if (ADVANCED_JOB_IDS.has(jobId)) continue;
     const img = new Image();
     // Hosted build loads legacy art from raw.githubusercontent.com. Anonymous CORS keeps
     // extractSubject()/toDataURL canvas operations readable instead of tainting the canvas.
@@ -426,8 +444,66 @@ function extractSubject(img, flip) {
   if (maxX < minX) { minX = 0; minY = 0; maxX = w - 1; maxY = h - 1; } // fully-removed edge case
   return { canvas: c, bx: minX, by: minY, bw: maxX - minX + 1, bh: maxY - minY + 1 };
 }
+async function loadAdvancedJobSheet() {
+  try {
+    const version = '20260921-advanced-v1';
+    const urls = Array.from({length: 7}, (_, i) =>
+      'art_chunks/advanced_jobs_v1.b64.' + String(i).padStart(2, '0') + '?v=' + version
+    );
+    const parts = await Promise.all(urls.map(async (url) => {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error('advanced art chunk failed: ' + url + ' (' + res.status + ')');
+      return (await res.text()).replace(/\s+/g, '');
+    }));
+    const sheet = new Image();
+    sheet.onload = () => {
+      const cols = 5, rows = 3;
+      const cellW = sheet.naturalWidth / cols;
+      const cellH = sheet.naturalHeight / rows;
+
+      ADVANCED_JOB_ORDER.forEach((jobId, idx) => {
+        const sx = (idx % cols) * cellW;
+        const sy = Math.floor(idx / cols) * cellH;
+        const w = Math.round(cellW), h = Math.round(cellH);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(sheet, sx, sy, cellW, cellH, 0, 0, w, h);
+
+        // Keep only the real transparent equipment silhouette.
+        const data = ctx.getImageData(0, 0, w, h).data;
+        let minX = w, minY = h, maxX = -1, maxY = -1;
+        for (let p = 0; p < w * h; p++) {
+          if (data[p * 4 + 3] < 8) continue;
+          const x = p % w, y = (p / w) | 0;
+          if (x < minX) minX = x; if (x > maxX) maxX = x;
+          if (y < minY) minY = y; if (y > maxY) maxY = y;
+        }
+        if (maxX < minX) return;
+        heroArtCache[jobId] = {
+          canvas,
+          bx: minX, by: minY,
+          bw: maxX - minX + 1, bh: maxY - minY + 1
+        };
+        delete jobIconCache[jobId];
+        delete heroPortraitCache[jobId];
+        if (typeof homeHeroCache !== 'undefined') delete homeHeroCache[jobId];
+      });
+
+      if (typeof renderHome === 'function' && document.getElementById('v-home')?.classList.contains('active')) renderHome();
+      if (typeof renderParty === 'function' && document.getElementById('v-party')?.classList.contains('active')) renderParty();
+      if (typeof renderTree === 'function' && document.getElementById('v-tree')?.classList.contains('active')) renderTree();
+      if (typeof renderTraining === 'function' && document.getElementById('v-train')?.classList.contains('active')) renderTraining();
+    };
+    sheet.src = 'data:image/webp;base64,' + parts.join('');
+  } catch (err) {
+    console.error('[MAMORIBITO] advanced job art load failed', err);
+  }
+}
+
 loadHeroArt();
 loadStarterJobSheet();
+loadAdvancedJobSheet();
 loadEnemyArt();
 
 function darken(hex, amt) {
