@@ -7,9 +7,9 @@
 // The readable class silhouette comes from oversized equipment and props, matching the original
 // series' defining "まもりびと" visual grammar while using newly generated designs.
 
-// Hero art pipeline. Starter jobs are loaded only from assets/starter-jobs-v4.webp.
-// Other approved art can come from window.HERO_ART. Obsolete REBUILD_HERO_ART support is removed
-// so deleted starter portraits cannot return during future builds.
+// Hero art pipeline. Approved rebuild portraits override legacy HERO_ART per job.
+// Starter jobs use the latest REBUILD_HERO_ART files directly so an old starter sheet cannot
+// silently replace the newer portraits.
 // Every character faces the same way (left) for a consistent battle-line look. Most generated
 // art already comes out facing left; jobs whose source image faces right are listed here and
 // get mirrored once at load time (president: キャラは全員左向きに統一).
@@ -132,12 +132,10 @@ function getWeaponIcon(line, weaponLv) {
 
 const heroArtCache = {};
 function loadHeroArt() {
-  const art = Object.assign({}, window.HERO_ART || {});
-  const starterOnly = new Set(['ashigaru','shashu','jumi','kagura']);
+  const art = Object.assign({}, window.HERO_ART || {}, window.REBUILD_HERO_ART || {});
   for (const key of Object.keys(art)) {
     if (!key.startsWith('hero_')) continue;
     const jobId = key.slice(5);
-    if (starterOnly.has(jobId)) continue;
     const img = new Image();
     // Hosted build loads legacy art from raw.githubusercontent.com. Anonymous CORS keeps
     // extractSubject()/toDataURL canvas operations readable instead of tainting the canvas.
@@ -301,7 +299,6 @@ function extractSubject(img, flip) {
   return { canvas: c, bx: minX, by: minY, bw: maxX - minX + 1, bh: maxY - minY + 1 };
 }
 loadHeroArt();
-loadStarterJobSheet();
 loadEnemyArt();
 
 function darken(hex, amt) {
@@ -337,7 +334,7 @@ function drawChibi(ctx, cx, cy, size, u, j, stats, slotIdx) {
   // become very visible after background extraction on iPhone. Keep those masters for UI QA,
   // but use the deterministic clean floating-equipment renderer in battle until each replacement
   // master has passed alpha-edge validation.
-  const art = null;
+  const art = heroArtCache[u.hero.job] || null;
   if (art) {
     // AI-generated original chibi art (see loadHeroArt) - already includes its own ground
     // shadow, so no procedural shadow/boots/cape/prop/body underneath it. Drawn from the
