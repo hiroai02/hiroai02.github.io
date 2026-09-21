@@ -1856,39 +1856,72 @@ body { min-width: 280px; }
 }
 
 
-/* === MAMORIBITO HOME ORIGINAL-PROPORTION FIX 2026-09-21 V3.3 === */
-.home-status {
-  font-size:12px !important;
-  line-height:1 !important;
+/* === MAMORIBITO PHONE HOME FINAL 2026-09-21 === */
+#v-home .home-hero {
+  width:100%;
+  min-height:clamp(154px,44vw,242px);
+  height:clamp(154px,44vw,242px);
+  margin:0;
+  overflow:hidden;
 }
-.home-status > div {
-  min-height:24px !important;
-  height:24px;
+#v-home .home-hero-art {
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  right:clamp(2px,1.2vw,7px);
+  bottom:-3px;
+  width:clamp(176px,54vw,286px);
+  height:97%;
+  max-width:58%;
+  object-fit:contain;
+  object-position:center bottom;
 }
-.home-status > div:not(.wide) {
-  grid-template-columns:44px minmax(0,1fr) 72px minmax(0,1fr) !important;
+#v-home .home-class {
+  left:clamp(10px,5vw,30px);
+  top:clamp(25px,7.5vw,42px);
+  width:clamp(138px,43vw,190px);
 }
-.home-status > .wide {
-  grid-template-columns:44px minmax(0,1fr) !important;
+#v-home .home-status,
+#v-home .home-bonus {
+  width:100%;
+  max-width:none;
+  margin-left:0;
+  margin-right:0;
+  box-sizing:border-box;
 }
-.home-status span {
-  padding-left:5px !important;
-  padding-right:2px !important;
+#v-home .home-status {
+  font-size:clamp(11px,3.35vw,13px);
+  line-height:1.15;
+}
+#v-home .home-status > div {
+  min-height:clamp(27px,7.2vw,32px);
+  height:auto;
+  grid-template-columns:
+    clamp(52px,17vw,70px) minmax(0,1fr)
+    clamp(52px,17vw,70px) minmax(0,1fr) !important;
+}
+#v-home .home-status > .wide {
+  grid-template-columns:clamp(52px,17vw,70px) minmax(0,1fr) !important;
+}
+#v-home .home-status span {
+  min-width:0;
+  padding:0 clamp(4px,1.6vw,7px);
   white-space:nowrap;
-  font-size:11px !important;
+  font-size:clamp(10.5px,3.1vw,12.5px);
 }
-.home-status b {
-  padding-right:6px !important;
-  font-size:12px !important;
-  line-height:1 !important;
+#v-home .home-status b {
+  min-width:0;
+  padding:0 clamp(5px,1.8vw,8px);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size:clamp(11px,3.3vw,13px);
 }
-@media (max-width:420px) {
-  .home-status > div:not(.wide) {
-    grid-template-columns:42px minmax(0,1fr) 70px minmax(0,1fr) !important;
+@media (max-width:340px) {
+  #v-home .home-status > div {
+    grid-template-columns:50px minmax(0,1fr) 50px minmax(0,1fr) !important;
   }
-  .home-status > .wide {
-    grid-template-columns:42px minmax(0,1fr) !important;
+  #v-home .home-status > .wide {
+    grid-template-columns:50px minmax(0,1fr) !important;
   }
-  .home-status span { font-size:10.5px !important; }
-  .home-status b { font-size:11.5px !important; }
 }
