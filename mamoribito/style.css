@@ -1823,3 +1823,34 @@ body { min-width: 280px; }
   text-overflow:ellipsis;
   white-space:nowrap;
 }
+
+
+/* === HOME STATUS WIDTH FIX 2026-09-21 ===
+   Keep both label columns identical so 職Lv / 所持ぜにー and the paired rows
+   match the surviving original-mobile proportions on narrow phones. */
+.home-status > div {
+  grid-template-columns:64px minmax(0,1fr) 64px minmax(0,1fr);
+}
+.home-status > .wide {
+  grid-template-columns:64px minmax(0,1fr);
+}
+.home-status span {
+  min-width:0;
+  padding-left:8px;
+  white-space:nowrap;
+}
+.home-status b {
+  min-width:0;
+  padding-right:9px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+@media (max-width:360px) {
+  .home-status > div {
+    grid-template-columns:60px minmax(0,1fr) 60px minmax(0,1fr);
+  }
+  .home-status > .wide {
+    grid-template-columns:60px minmax(0,1fr);
+  }
+}
