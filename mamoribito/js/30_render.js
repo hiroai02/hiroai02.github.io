@@ -166,6 +166,55 @@ function loadHeroArt() {
   }
 }
 
+function extractStarterSubject(img) {
+  const c = document.createElement('canvas');
+  const w = img.naturalWidth, h = img.naturalHeight;
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  const frame = ctx.getImageData(0, 0, w, h);
+  const d = frame.data;
+
+  // The approved starter sheet has a parchment background around RGB(245,237,220).
+  // Compare every flood-fill candidate to that fixed background colour instead of to
+  // the previous pixel. This prevents a gradual colour ramp from walking into the character.
+  const samples = [[3,3],[w-4,3],[3,h-4],[w-4,h-4]];
+  let br=0,bg=0,bb=0;
+  for (const [x,y] of samples) {
+    const i=(y*w+x)*4; br+=d[i]; bg+=d[i+1]; bb+=d[i+2];
+  }
+  br/=samples.length; bg/=samples.length; bb/=samples.length;
+  const isBg = (p) => {
+    const i=p*4;
+    return Math.abs(d[i]-br)+Math.abs(d[i+1]-bg)+Math.abs(d[i+2]-bb) < 72;
+  };
+
+  const seen = new Uint8Array(w*h);
+  const q = [];
+  const push = (p) => { if (!seen[p] && isBg(p)) { seen[p]=1; q.push(p); } };
+  for (let x=0;x<w;x++) { push(x); push((h-1)*w+x); }
+  for (let y=0;y<h;y++) { push(y*w); push(y*w+w-1); }
+  for (let head=0; head<q.length; head++) {
+    const p=q[head], x=p%w, y=(p/w)|0;
+    if (x>0) push(p-1);
+    if (x<w-1) push(p+1);
+    if (y>0) push(p-w);
+    if (y<h-1) push(p+w);
+  }
+
+  let minX=w,minY=h,maxX=-1,maxY=-1;
+  for (let p=0;p<w*h;p++) {
+    if (seen[p]) d[p*4+3]=0;
+    if (d[p*4+3] < 8) continue;
+    const x=p%w, y=(p/w)|0;
+    if(x<minX)minX=x; if(x>maxX)maxX=x;
+    if(y<minY)minY=y; if(y>maxY)maxY=y;
+  }
+  ctx.putImageData(frame,0,0);
+  if(maxX<minX) return null;
+  return {canvas:c,bx:minX,by:minY,bw:maxX-minX+1,bh:maxY-minY+1};
+}
+
 // Latest approved starter professions. This is the only source for the four starter portraits.
 function loadStarterJobSheet() {
   const crops = {
@@ -191,7 +240,8 @@ function loadStarterJobSheet() {
 
       const cropped = new Image();
       cropped.onload = () => {
-        heroArtCache[jobId] = extractSubject(cropped, false);
+        const extracted = extractStarterSubject(cropped);
+        if (extracted) heroArtCache[jobId] = extracted;
         delete jobIconCache[jobId];
         delete heroPortraitCache[jobId];
         if (typeof homeHeroCache !== 'undefined') delete homeHeroCache[jobId];
@@ -202,7 +252,7 @@ function loadStarterJobSheet() {
       cropped.src = homeStarterPortraitCache[jobId];
     }
   };
-  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-7';
+  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-8';
 }
 
 // Enemies share the same build.ps1 asset pipeline as heroes (any src/assets/<key>.jpg becomes
