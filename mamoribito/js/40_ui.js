@@ -1,7 +1,68 @@
 // Screens: home, quests, party (evolve/weapon/orb), job tree, training, titles, battle panel.
 let trainHeroIdx = 0;
 
+function ensureHomePhoneLayout() {
+  if (document.getElementById('home-phone-layout-v4')) return;
+  const style = document.createElement('style');
+  style.id = 'home-phone-layout-v4';
+  style.textContent = `
+    /* Phone-first home status proportions: preserve the original two-pair rhythm,
+       but scale widths and type with the actual handset instead of fixed legacy pixels. */
+    #v-home .home-status,
+    #v-home .home-bonus {
+      width: 100% !important;
+      max-width: none !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+    #v-home .home-status {
+      font-size: clamp(11px, 3.35vw, 13px) !important;
+      line-height: 1.15 !important;
+    }
+    #v-home .home-status > div {
+      min-height: clamp(26px, 7.6vw, 32px) !important;
+      height: auto !important;
+      grid-template-columns:
+        clamp(54px, 18vw, 72px) minmax(0, 1fr)
+        clamp(54px, 18vw, 72px) minmax(0, 1fr) !important;
+    }
+    #v-home .home-status > .wide {
+      grid-template-columns: clamp(54px, 18vw, 72px) minmax(0, 1fr) !important;
+    }
+    #v-home .home-status span {
+      padding: 0 clamp(5px, 1.8vw, 8px) !important;
+      font-size: clamp(11px, 3.2vw, 13px) !important;
+      line-height: 1.15 !important;
+    }
+    #v-home .home-status b {
+      padding: 0 clamp(6px, 2vw, 9px) !important;
+      font-size: clamp(11.5px, 3.45vw, 13.5px) !important;
+      line-height: 1.15 !important;
+    }
+    #v-home .home-hero {
+      min-height: clamp(150px, 45vw, 245px);
+    }
+    #v-home .home-hero-art {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    @media (max-width: 340px) {
+      #v-home .home-status > div {
+        grid-template-columns:
+          52px minmax(0, 1fr)
+          52px minmax(0, 1fr) !important;
+      }
+      #v-home .home-status > .wide {
+        grid-template-columns: 52px minmax(0, 1fr) !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 function renderHome() {
+  ensureHomePhoneLayout();
   const hero = save.heroes[0];
   const j = JOBS[hero.job];
   const need = hero.lv < BAL.jobExp.maxLevel ? expNeeded(hero.job, hero.lv) : 0;
@@ -20,12 +81,16 @@ function renderHome() {
 
   const art = document.getElementById('homeHeroArt');
   if (art) {
-    const latestArt = window.REBUILD_HERO_ART && window.REBUILD_HERO_ART['hero_' + hero.job];
+    const isStarter = typeof STARTER_JOB_IDS !== 'undefined' && STARTER_JOB_IDS.has(hero.job);
+    const latestArt = !isStarter && window.REBUILD_HERO_ART && window.REBUILD_HERO_ART['hero_' + hero.job];
+    const approvedPortrait = getHeroPortrait(hero.job);
     art.onerror = () => {
       art.onerror = null;
       art.src = getHeroPortrait(hero.job);
     };
-    art.src = latestArt || getHeroPortrait(hero.job);
+    // Starter jobs are locked to starter-jobs-v4 via heroArtCache. Never point the
+    // home screen back at an older embedded starter portrait.
+    art.src = isStarter ? approvedPortrait : (latestArt || approvedPortrait);
   }
 
   const bonus = [];
