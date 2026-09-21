@@ -133,9 +133,11 @@ function getWeaponIcon(line, weaponLv) {
 const heroArtCache = {};
 function loadHeroArt() {
   const art = Object.assign({}, window.HERO_ART || {});
+  const starterOnly = new Set(['ashigaru','shashu','jumi','kagura']);
   for (const key of Object.keys(art)) {
     if (!key.startsWith('hero_')) continue;
     const jobId = key.slice(5);
+    if (starterOnly.has(jobId)) continue;
     const img = new Image();
     // Hosted build loads legacy art from raw.githubusercontent.com. Anonymous CORS keeps
     // extractSubject()/toDataURL canvas operations readable instead of tainting the canvas.
@@ -187,7 +189,7 @@ function loadStarterJobSheet() {
       cropped.src = cropCanvas.toDataURL('image/png');
     }
   };
-  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-2';
+  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-3';
 }
 
 // Enemies share the same build.ps1 asset pipeline as heroes (any src/assets/<key>.jpg becomes
