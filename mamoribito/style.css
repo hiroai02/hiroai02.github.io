@@ -1791,3 +1791,13 @@ body { min-width: 280px; }
   border:2px solid rgba(255,255,255,.32);
   background:rgba(36,29,22,.86);
 }
+
+
+/* HOME STATUS REFERENCE WIDTH 2026-09-21 */
+.home-status,
+.home-bonus {
+  width:min(100%,320px);
+  max-width:320px;
+  margin-left:auto;
+  margin-right:auto;
+}
