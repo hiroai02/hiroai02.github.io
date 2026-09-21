@@ -15,6 +15,13 @@
 // get mirrored once at load time (president: キャラは全員左向きに統一).
 const HERO_ART_FLIP = new Set(['yuusha', 'ningyoushi', 'dokuyashi']);
 
+// Starter professions must never fall back to the legacy embedded portraits.
+// The approved starter-jobs-v4 sheet is the single source of truth for these four jobs.
+const STARTER_JOB_IDS = new Set(['ashigaru', 'shashu', 'jumi', 'kagura']);
+if (window.REBUILD_HERO_ART) {
+  for (const jobId of STARTER_JOB_IDS) delete window.REBUILD_HERO_ART['hero_' + jobId];
+}
+
 // Small per-job icon for non-battle UI (job tree, etc.): the real portrait's face region when
 // one exists, otherwise a mini procedural helmet (drawHeadgear) in the job's own colour - every
 // job gets a distinct icon even the ones without generated art yet. Only the real-art case is
@@ -136,6 +143,7 @@ function loadHeroArt() {
   for (const key of Object.keys(art)) {
     if (!key.startsWith('hero_')) continue;
     const jobId = key.slice(5);
+    if (STARTER_JOB_IDS.has(jobId)) continue;
     const img = new Image();
     // Hosted build loads legacy art from raw.githubusercontent.com. Anonymous CORS keeps
     // extractSubject()/toDataURL canvas operations readable instead of tainting the canvas.
@@ -187,7 +195,7 @@ function loadStarterJobSheet() {
       cropped.src = cropCanvas.toDataURL('image/png');
     }
   };
-  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-5';
+  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-6';
 }
 
 // Enemies share the same build.ps1 asset pipeline as heroes (any src/assets/<key>.jpg becomes
