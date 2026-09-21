@@ -1801,3 +1801,19 @@ body { min-width: 280px; }
   margin-left:auto;
   margin-right:auto;
 }
+
+
+/* HOME STATUS CELL PROPORTION FIX 2026-09-21 */
+.home-status > div:not(.wide) {
+  grid-template-columns:54px calc(50% - 54px) 76px calc(50% - 76px);
+}
+.home-status > div:not(.wide) > span:nth-of-type(2) {
+  padding-left:6px;
+  white-space:nowrap;
+}
+.home-status > div:not(.wide) > b {
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
