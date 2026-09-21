@@ -523,8 +523,8 @@ body { min-width: 280px; }
   filter:drop-shadow(0 4px 2px rgba(0,0,0,.22));
 }
 .home-status {
-  width:100%;
-  max-width:520px;
+  width:min(100%,320px);
+  max-width:320px;
   background:#f5eac8;
   border-top:1px solid #c9b889;
   border-bottom:1px solid #bca879;
@@ -549,8 +549,8 @@ body { min-width: 280px; }
   padding-right:10px;
 }
 .home-bonus {
-  width:100%;
-  max-width:520px;
+  width:min(100%,320px);
+  max-width:320px;
   min-height:28px;
   padding:5px 8px;
   background:#fff9e6;
@@ -6229,10 +6229,12 @@ const heroArtCache = {};
 function loadHeroArt() {
   // Existing build assets stay available as fallbacks until Rebuild V2 passes runtime QA.
   // Use the more detailed portraits when available; the vector set fills missing jobs.
-  const art = Object.assign({}, window.REBUILD_HERO_ART || {}, window.HERO_ART || {});
+  const art = Object.assign({}, window.HERO_ART || {});
+  const starterOnly = new Set(['ashigaru','shashu','jumi','kagura']);
   for (const key of Object.keys(art)) {
     if (!key.startsWith('hero_')) continue;
     const jobId = key.slice(5);
+    if (starterOnly.has(jobId)) continue;
     const img = new Image();
     img.onload = () => {
       heroArtCache[jobId] = extractSubject(img, HERO_ART_FLIP.has(jobId));
@@ -6280,7 +6282,7 @@ function loadStarterJobSheet() {
       cropped.src = cropCanvas.toDataURL('image/png');
     }
   };
-  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-2';
+  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-3';
 }
 
 // Enemies share the same build.ps1 asset pipeline as heroes (any src/assets/<key>.jpg becomes
