@@ -7,10 +7,9 @@
 // The readable class silhouette comes from oversized equipment and props, matching the original
 // series' defining "まもりびと" visual grammar while using newly generated designs.
 
-// Hero art pipeline: window.HERO_ART contains legacy build assets while
-// window.REBUILD_HERO_ART contains validated Rebuild V2 overrides. The latter wins per key.
-// Legacy JPEGs and current Rebuild V2 WebP may carry flat/checkerboard backgrounds; future
-// cutouts may already have alpha. extractSubject() handles both paths and caches battle + UI art.
+// Hero art pipeline. Starter jobs are loaded only from assets/starter-jobs-v4.webp.
+// Other approved art can come from window.HERO_ART. Obsolete REBUILD_HERO_ART support is removed
+// so deleted starter portraits cannot return during future builds.
 // Every character faces the same way (left) for a consistent battle-line look. Most generated
 // art already comes out facing left; jobs whose source image faces right are listed here and
 // get mirrored once at load time (president: キャラは全員左向きに統一).
@@ -133,9 +132,7 @@ function getWeaponIcon(line, weaponLv) {
 
 const heroArtCache = {};
 function loadHeroArt() {
-  // Existing build assets stay available as fallbacks until Rebuild V2 passes runtime QA.
-  // Newly rebuilt portraits override only the matching keys, so validation is reversible.
-  const art = Object.assign({}, window.HERO_ART || {}, window.REBUILD_HERO_ART || {});
+  const art = Object.assign({}, window.HERO_ART || {});
   for (const key of Object.keys(art)) {
     if (!key.startsWith('hero_')) continue;
     const jobId = key.slice(5);
@@ -158,6 +155,39 @@ function loadHeroArt() {
     };
     img.src = art[key];
   }
+}
+
+// Latest approved starter professions. This is the only source for the four starter portraits.
+function loadStarterJobSheet() {
+  const crops = {
+    ashigaru: [0, 0, .264, 1],
+    shashu: [.242, 0, .259, 1],
+    jumi: [.476, 0, .287, 1],
+    kagura: [.716, 0, .284, 1],
+  };
+  const sheet = new Image();
+  sheet.onload = () => {
+    for (const [jobId, crop] of Object.entries(crops)) {
+      const [rx, ry, rw, rh] = crop;
+      const sx = Math.round(sheet.naturalWidth * rx), sy = Math.round(sheet.naturalHeight * ry);
+      const sw = Math.round(sheet.naturalWidth * rw), sh = Math.round(sheet.naturalHeight * rh);
+      const cropCanvas = document.createElement('canvas');
+      cropCanvas.width = sw; cropCanvas.height = sh;
+      cropCanvas.getContext('2d').drawImage(sheet, sx, sy, sw, sh, 0, 0, sw, sh);
+      const cropped = new Image();
+      cropped.onload = () => {
+        heroArtCache[jobId] = extractSubject(cropped, false);
+        delete jobIconCache[jobId];
+        delete heroPortraitCache[jobId];
+        if (typeof homeHeroCache !== 'undefined') delete homeHeroCache[jobId];
+        if (typeof renderHome === 'function' && document.getElementById('v-home')?.classList.contains('active')) renderHome();
+        if (typeof renderParty === 'function' && document.getElementById('v-party')?.classList.contains('active')) renderParty();
+        if (typeof renderTree === 'function' && document.getElementById('v-tree')?.classList.contains('active')) renderTree();
+      };
+      cropped.src = cropCanvas.toDataURL('image/png');
+    }
+  };
+  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-2';
 }
 
 // Enemies share the same build.ps1 asset pipeline as heroes (any src/assets/<key>.jpg becomes
@@ -269,6 +299,7 @@ function extractSubject(img, flip) {
   return { canvas: c, bx: minX, by: minY, bw: maxX - minX + 1, bh: maxY - minY + 1 };
 }
 loadHeroArt();
+loadStarterJobSheet();
 loadEnemyArt();
 
 function darken(hex, amt) {
