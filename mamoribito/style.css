@@ -561,21 +561,27 @@ body { min-width: 280px; }
 }
 .home-status > div {
   display:grid;
-  grid-template-columns:60px 1fr 68px 1fr;
+  grid-template-columns:72px minmax(0,1fr) 72px minmax(0,1fr);
   min-height:31px;
   align-items:center;
   border-top:1px solid #ded0aa;
 }
 .home-status > div:first-child { border-top:0; }
-.home-status > .wide { grid-template-columns:64px 1fr; }
+.home-status > .wide { grid-template-columns:72px minmax(0,1fr); }
 .home-status span {
-  padding-left:8px;
+  min-width:0;
+  padding:0 7px;
   color:#2e251b;
+  white-space:nowrap;
 }
 .home-status b {
+  min-width:0;
   font-weight:500;
   text-align:right;
-  padding-right:10px;
+  padding:0 9px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 .home-bonus {
   min-height:28px;
