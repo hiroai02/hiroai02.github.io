@@ -189,7 +189,7 @@ function loadStarterJobSheet() {
       cropped.src = cropCanvas.toDataURL('image/png');
     }
   };
-  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-3';
+  sheet.src = 'assets/starter-jobs-v4.webp?v=20260921-4';
 }
 
 // Enemies share the same build.ps1 asset pipeline as heroes (any src/assets/<key>.jpg becomes
