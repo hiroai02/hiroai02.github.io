@@ -24,6 +24,75 @@ jobs:
           text = index.read_text(encoding="utf-8")
           changed = False
 
+          # LIVE_TEST_PATCH_20260922: keep the live test build easy to verify from the public GitHub Pages URL.
+          # Patch only the executable (last) UI code copy; PAGE_TEMPLATE remains a backup copy.
+          active_train = text.rfind("const TRAIN_KINDS = [")
+          if active_train < 0:
+              raise SystemExit("active training block not found")
+          active_prefix = text[:active_train]
+          if "const TRAINING_TEST_UNLIMITED = true;" not in active_prefix[-500:]:
+              text = text[:active_train] + "const TRAINING_TEST_UNLIMITED = true;\n" + text[active_train:]
+              changed = True
+
+          # Unlimited training: visible infinity label, never disable the button, never consume tickets.
+          replacements_test = {
+              "document.getElementById('trainTickets').textContent = \`${save.trainTickets} / ${BAL.training.ticketMax}\`;":
+                  "document.getElementById('trainTickets').textContent = TRAINING_TEST_UNLIMITED ? '∞（テスト）' : \`${save.trainTickets} / ${BAL.training.ticketMax}\`;",
+              "${save.trainTickets <= 0 ? 'disabled' : ''}>修行する</button>":
+                  "${(!TRAINING_TEST_UNLIMITED && save.trainTickets <= 0) ? 'disabled' : ''}>修行する</button>",
+              "  if (save.trainTickets <= 0) return;\n  save.trainTickets--;":
+                  "  if (!TRAINING_TEST_UNLIMITED && save.trainTickets <= 0) return;\n  if (!TRAINING_TEST_UNLIMITED) save.trainTickets--;",
+          }
+          active_start = text.rfind("// --- training ---")
+          if active_start < 0:
+              raise SystemExit("active training marker not found")
+          active_end = text.find("// --- servants ---", active_start)
+          if active_end < 0:
+              raise SystemExit("active training end marker not found")
+          train_block = text[active_start:active_end]
+          for old, new in replacements_test.items():
+              if old in train_block:
+                  train_block = train_block.replace(old, new)
+                  changed = True
+          text = text[:active_start] + train_block + text[active_end:]
+
+          # Home status also advertises test mode if that field exists in this live build.
+          home_start = text.rfind("function renderHome()")
+          home_end = text.find("function refreshGuideArt()", home_start)
+          if home_start >= 0 and home_end > home_start:
+              home_block = text[home_start:home_end]
+              old_home_stamina = "document.getElementById('homeStamina').textContent = save.trainTickets + '/' + BAL.training.ticketMax;"
+              new_home_stamina = "document.getElementById('homeStamina').textContent = TRAINING_TEST_UNLIMITED ? '∞ TEST' : (save.trainTickets + '/' + BAL.training.ticketMax);"
+              if old_home_stamina in home_block:
+                  home_block = home_block.replace(old_home_stamina, new_home_stamina)
+                  text = text[:home_start] + home_block + text[home_end:]
+                  changed = True
+
+          # Force the current profession label to the upper-right on the executable page CSS.
+          css_marker = "/* HOME CURRENT-JOB LABEL FIX 2026-09-22 LIVE */"
+          if css_marker not in text[:text.find("</style>")]:
+              css = """
+/* HOME CURRENT-JOB LABEL FIX 2026-09-22 LIVE */
+.home-class {
+  left:auto !important;
+  right:clamp(10px,3.6vw,20px) !important;
+  top:clamp(8px,2.8vw,16px) !important;
+  width:min(48vw,190px) !important;
+  z-index:8 !important;
+  text-align:right !important;
+  pointer-events:none;
+}
+.home-job-name,.home-job-sub,.home-class-ribbon { position:relative; z-index:1; }
+.home-job-name {
+  text-shadow:0 2px 0 #fff,0 -1px 0 #fff,1px 0 0 #fff,-1px 0 0 #fff,0 0 5px rgba(255,255,255,.9);
+}
+"""
+              style_end = text.find("</style>")
+              if style_end < 0:
+                  raise SystemExit("active style closing tag not found")
+              text = text[:style_end] + css + text[style_end:]
+              changed = True
+
           # Keep the approved advanced-class sprite sheet physically inside the live HTML.
           marker = "async function loadAdvancedJobSheet()"
           func_pos = text.rfind(marker)
