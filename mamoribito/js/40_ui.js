@@ -493,6 +493,7 @@ function renderTree() {
 }
 
 // --- training ---
+const TRAINING_TEST_UNLIMITED = true;
 const TRAIN_KINDS = [
   { id: 'suburi', name: '素振り', line: 'melee' },
   { id: 'matoi', name: '的射', line: 'ranged' },
@@ -516,7 +517,7 @@ function regenTickets() {
 
 function renderTraining() {
   regenTickets();
-  document.getElementById('trainTickets').textContent = `${save.trainTickets} / ${BAL.training.ticketMax}`;
+  document.getElementById('trainTickets').textContent = TRAINING_TEST_UNLIMITED ? '∞（テスト）' : `${save.trainTickets} / ${BAL.training.ticketMax}`;
 
   const picker = document.getElementById('trainHeroPicker');
   picker.innerHTML = save.heroes.map((h, i) =>
@@ -541,15 +542,15 @@ function renderTraining() {
         <b>${k.name}${fit ? ' <em>適性</em>' : ''}</b>
         <small>${fit ? `${j.name}に適性あり（職Exp +30%）` : `${j.name}の職Expを得る（適性補正なし）`}</small>
       </span>
-      <button class="btn link" data-train="${k.id}" ${save.trainTickets <= 0 ? 'disabled' : ''}>修行する</button>
+      <button class="btn link" data-train="${k.id}" ${(!TRAINING_TEST_UNLIMITED && save.trainTickets <= 0) ? 'disabled' : ''}>修行する</button>
     </div>`;
   }).join('');
 }
 
 function doTrain(kindId) {
   regenTickets();
-  if (save.trainTickets <= 0) return;
-  save.trainTickets--;
+  if (!TRAINING_TEST_UNLIMITED && save.trainTickets <= 0) return;
+  if (!TRAINING_TEST_UNLIMITED) save.trainTickets--;
   save.trainCount++;
   if (!save.lastTicketAt) save.lastTicketAt = Date.now();
 
