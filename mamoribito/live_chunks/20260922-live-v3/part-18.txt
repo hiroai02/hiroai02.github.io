@@ -1090,7 +1090,7 @@ function renderHome() {
   if (band) { const cls = j.tier <= 1 ? 'Basic Class' : j.tier === 2 ? 'High Class' : j.tier === 3 ? 'Master Class' : 'Legend Class'; band.textContent = '>> ' + cls + ' <<'; }
   document.getElementById('homeJobLv').textContent = `${hero.lv}/${BAL.jobExp.maxLevel}`;
   document.getElementById('homeGold').textContent = save.gold + 'z';
-  document.getElementById('homeStamina').textContent = TRAINING_TEST_UNLIMITED ? '∞ TEST' : (save.trainTickets + '/' + BAL.training.ticketMax);
+  document.getElementById('homeStamina').textContent = window.TRAINING_TEST_UNLIMITED ? '∞ TEST' : (save.trainTickets + '/' + BAL.training.ticketMax);
   document.getElementById('homeWeaponLv').textContent = hero.weaponLv + '/' + BAL.weapon.maxLevel;
   document.getElementById('homeOrb').textContent = hero.orb ? ORBS[hero.orb].name : 'なし';
   document.getElementById('homeLegend').textContent = save.legendScore;
