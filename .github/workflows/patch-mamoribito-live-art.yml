@@ -169,6 +169,131 @@ jobs:
                   replaced[old.split(":")[0].strip()] = count
                   changed = True
 
+
+          # MID_RENDER_V5: the old fallback renderer only looked at attack line
+          # (melee/ranged/magic/etc.), so several tier-2 jobs still looked almost identical.
+          # Thread the actual job id into the renderer and give all 12 mid-tier jobs their own
+          # headgear + weapon silhouette. This affects battle, job icons and My Page fallback art.
+          call_replacements = {
+              "drawProp(ctx, cx, cy, size, j, shadeC, outline, lw);":
+                  "drawProp(ctx, cx, cy, size, j, shadeC, outline, lw, u.hero.job);",
+              "drawHeadgear(ctx, cx, headY, headR, j, headGrad, shadeC, outline, lw);":
+                  "drawHeadgear(ctx, cx, headY, headR, j, headGrad, shadeC, outline, lw, u.hero.job);",
+              "drawHeadgear(ctx, size / 2, size / 2 + 2, size * 0.36, j, j.color, darken(j.color, 40), '#1B1610', size * 0.05);":
+                  "drawHeadgear(ctx, size / 2, size / 2 + 2, size * 0.36, j, j.color, darken(j.color, 40), '#1B1610', size * 0.05, jobId);",
+          }
+          for old, new in call_replacements.items():
+              if old in text:
+                  text = text.replace(old, new)
+                  changed = True
+
+          head_sig = "function drawHeadgear(ctx, cx, cy, r, j, bodyC, shadeC, outline, lw) {"
+          if head_sig in text:
+              head_v5 = """function drawHeadgear(ctx, cx, cy, r, j, bodyC, shadeC, outline, lw, jobId) {
+  ctx.fillStyle = bodyC; ctx.strokeStyle = outline; ctx.lineWidth = lw;
+  const mid = jobId || '';
+  // Tier-2 job-specific silhouettes. No visible face/body: equipment only.
+  if (mid === 'samurai') {
+    ctx.beginPath(); ctx.arc(cx, cy+r*.08, r*.92, Math.PI, 0); ctx.lineTo(cx+r*.72,cy+r*.42); ctx.lineTo(cx-r*.72,cy+r*.42); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=shadeC; ctx.beginPath(); ctx.moveTo(cx,cy-r*1.22); ctx.lineTo(cx+r*.17,cy-r*.48); ctx.lineTo(cx-r*.17,cy-r*.48); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-r*.62,cy-r*.55); ctx.quadraticCurveTo(cx,cy-r*.92,cx+r*.62,cy-r*.55); ctx.stroke(); return;
+  }
+  if (mid === 'yariashi') {
+    ctx.beginPath(); ctx.moveTo(cx,cy-r*.95); ctx.lineTo(cx+r*1.08,cy+r*.18); ctx.lineTo(cx-r*1.08,cy+r*.18); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=shadeC; ctx.fillRect(cx-r*.10,cy+r*.16,r*.20,r*.48); ctx.strokeRect(cx-r*.10,cy+r*.16,r*.20,r*.48); return;
+  }
+  if (mid === 'kyousenshi') {
+    ctx.beginPath(); ctx.arc(cx,cy+r*.05,r*.92,Math.PI,0); ctx.lineTo(cx+r*.78,cy+r*.52); ctx.lineTo(cx-r*.78,cy+r*.52); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=shadeC;
+    ctx.beginPath(); ctx.moveTo(cx-r*.62,cy-r*.45); ctx.lineTo(cx-r*1.18,cy-r*1.05); ctx.lineTo(cx-r*.88,cy-r*.12); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+r*.62,cy-r*.45); ctx.lineTo(cx+r*1.18,cy-r*1.05); ctx.lineTo(cx+r*.88,cy-r*.12); ctx.closePath(); ctx.fill(); ctx.stroke(); return;
+  }
+  if (mid === 'sogeki') {
+    ctx.beginPath(); ctx.arc(cx,cy-r*.05,r*.80,Math.PI,0); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(cx,cy+r*.20,r*1.02,r*.18,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle='#E8D8A8'; ctx.lineWidth=lw*.7; ctx.beginPath(); ctx.moveTo(cx+r*.42,cy-r*.48); ctx.quadraticCurveTo(cx+r*.90,cy-r*1.18,cx+r*.62,cy-r*1.48); ctx.stroke(); return;
+  }
+  if (mid === 'meigen') {
+    ctx.beginPath(); ctx.moveTo(cx,cy-r*1.28); ctx.quadraticCurveTo(cx-r*.82,cy-r*.58,cx-r*.72,cy+r*.38); ctx.lineTo(cx+r*.72,cy+r*.38); ctx.quadraticCurveTo(cx+r*.82,cy-r*.58,cx,cy-r*1.28); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle='#E9D47A'; ctx.lineWidth=lw*.7; ctx.beginPath(); ctx.arc(cx,cy-r*.18,r*.50,0,Math.PI*2); ctx.stroke(); return;
+  }
+  if (mid === 'fufushi') {
+    ctx.beginPath(); ctx.arc(cx,cy+r*.08,r*.88,Math.PI,0); ctx.lineTo(cx+r*.76,cy+r*.50); ctx.lineTo(cx-r*.76,cy+r*.50); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#F07B32'; ctx.beginPath(); ctx.moveTo(cx,cy-r*1.35); ctx.quadraticCurveTo(cx+r*.55,cy-r*.76,cx+r*.18,cy-r*.30); ctx.quadraticCurveTo(cx-r*.42,cy-r*.72,cx,cy-r*1.35); ctx.fill(); ctx.stroke(); return;
+  }
+  if (mid === 'hyofushi') {
+    ctx.beginPath(); ctx.arc(cx,cy+r*.08,r*.88,Math.PI,0); ctx.lineTo(cx+r*.76,cy+r*.50); ctx.lineTo(cx-r*.76,cy+r*.50); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#CDEBFF'; for (const dx of [-.58,0,.58]) { ctx.beginPath(); ctx.moveTo(cx+r*dx,cy-r*.48); ctx.lineTo(cx+r*dx+r*.18,cy-r*1.25); ctx.lineTo(cx+r*dx+r*.34,cy-r*.45); ctx.closePath(); ctx.fill(); ctx.stroke(); } return;
+  }
+  if (mid === 'kunoichi') {
+    ctx.beginPath(); ctx.arc(cx,cy,r*.94,Math.PI*.92,Math.PI*2.08); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=outline; roundBar(ctx,cx,cy+r*.16,r*1.78,r*.24);
+    ctx.strokeStyle='#8B9AA5'; ctx.lineWidth=lw*.6; ctx.beginPath(); ctx.moveTo(cx-r*.76,cy-r*.52); ctx.lineTo(cx+r*.55,cy-r*.85); ctx.stroke(); return;
+  }
+  if (mid === 'miko') {
+    ctx.beginPath(); ctx.arc(cx,cy+r*.04,r*.88,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#F6F0E6'; ctx.beginPath(); ctx.moveTo(cx-r*.92,cy-r*.18); ctx.lineTo(cx-r*.58,cy+r*.95); ctx.lineTo(cx-r*.20,cy+r*.28); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+r*.92,cy-r*.18); ctx.lineTo(cx+r*.58,cy+r*.95); ctx.lineTo(cx+r*.20,cy+r*.28); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle='#FFD9A0'; ctx.beginPath(); ctx.arc(cx,cy-r*.20,r*.58,Math.PI*1.15,Math.PI*1.85); ctx.stroke(); return;
+  }
+  if (mid === 'haraite') {
+    ctx.beginPath(); ctx.moveTo(cx,cy-r*1.18); ctx.lineTo(cx+r*.82,cy-r*.10); ctx.lineTo(cx+r*.68,cy+r*.48); ctx.lineTo(cx-r*.68,cy+r*.48); ctx.lineTo(cx-r*.82,cy-r*.10); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#EFE4BD'; ctx.fillRect(cx-r*.18,cy-r*.92,r*.36,r*.58); ctx.strokeRect(cx-r*.18,cy-r*.92,r*.36,r*.58); return;
+  }
+  if (mid === 'dokuyashi') {
+    ctx.beginPath(); ctx.arc(cx,cy,r*.94,Math.PI*.92,Math.PI*2.08); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#A7D35E'; ctx.beginPath(); ctx.arc(cx+r*.56,cy-r*.62,r*.15,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=outline; roundBar(ctx,cx,cy+r*.15,r*1.55,r*.20); return;
+  }
+  if (mid === 'douchi') {
+    ctx.beginPath(); ctx.moveTo(cx-r*.62,cy+r*.42); ctx.quadraticCurveTo(cx-r*.25,cy-r*.85,cx-r*.05,cy-r*1.15); ctx.quadraticCurveTo(cx+r*.35,cy-r*.72,cx+r*.58,cy+r*.42); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle='#D9B06B'; ctx.lineWidth=lw*.8; ctx.beginPath(); ctx.arc(cx,cy+r*.04,r*.60,Math.PI*.12,Math.PI*.88); ctx.stroke(); return;
+  }
+"""
+              text = text.replace(head_sig, head_v5, 1)
+              changed = True
+
+          prop_sig = "function drawProp(ctx, cx, cy, size, j, shadeC, outline, lw) {"
+          if prop_sig in text:
+              prop_v5 = """function drawProp(ctx, cx, cy, size, j, shadeC, outline, lw, jobId) {
+  ctx.strokeStyle = outline; ctx.lineWidth = lw;
+  const px = cx + size * 0.30, py = cy + size * 0.02;
+  const mid = jobId || '';
+  if (mid === 'samurai') {
+    ctx.save(); ctx.translate(px,py); ctx.rotate(-.62); ctx.fillStyle='#E8E4DA'; ctx.fillRect(-size*.035,-size*.40,size*.07,size*.52); ctx.strokeRect(-size*.035,-size*.40,size*.07,size*.52); ctx.fillStyle='#B88A45'; ctx.fillRect(-size*.11,size*.04,size*.22,size*.045); ctx.fillStyle=shadeC; ctx.fillRect(-size*.035,size*.08,size*.07,size*.17); ctx.restore(); return;
+  }
+  if (mid === 'yariashi') {
+    ctx.save(); ctx.translate(px,py); ctx.rotate(-.12); ctx.strokeStyle='#6E5437'; ctx.lineWidth=lw*.75; ctx.beginPath(); ctx.moveTo(0,size*.34); ctx.lineTo(0,-size*.52); ctx.stroke(); ctx.fillStyle='#D9D7CF'; ctx.beginPath(); ctx.moveTo(0,-size*.62); ctx.lineTo(size*.07,-size*.48); ctx.lineTo(-size*.07,-size*.48); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); return;
+  }
+  if (mid === 'kyousenshi') {
+    ctx.save(); ctx.translate(px,py); ctx.rotate(-.48); ctx.fillStyle='#BFC2C5'; ctx.beginPath(); ctx.moveTo(-size*.04,-size*.42); ctx.lineTo(size*.18,-size*.24); ctx.lineTo(size*.10,size*.10); ctx.lineTo(-size*.10,size*.10); ctx.lineTo(-size*.18,-size*.24); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle=shadeC; ctx.fillRect(-size*.035,size*.06,size*.07,size*.24); ctx.restore(); return;
+  }
+  if (mid === 'sogeki' || mid === 'dokuyashi' || mid === 'meigen') {
+    const rad = mid==='meigen'?size*.30:size*.26; ctx.beginPath(); ctx.arc(px,py-size*.02,rad,-1.05,1.05); ctx.stroke(); ctx.beginPath(); ctx.moveTo(px+Math.cos(-1.05)*rad,py-size*.02+Math.sin(-1.05)*rad); ctx.lineTo(px+Math.cos(1.05)*rad,py-size*.02+Math.sin(1.05)*rad); ctx.stroke();
+    if(mid==='dokuyashi'){ctx.fillStyle='#98C95B';ctx.beginPath();ctx.arc(px-size*.02,py-size*.33,size*.045,0,Math.PI*2);ctx.fill();}
+    if(mid==='meigen'){ctx.fillStyle='#F3E2A2';ctx.fillRect(px-size*.025,py-size*.38,size*.05,size*.13);ctx.strokeRect(px-size*.025,py-size*.38,size*.05,size*.13);} return;
+  }
+  if (mid === 'fufushi' || mid === 'hyofushi') {
+    ctx.beginPath(); ctx.moveTo(px,py+size*.24); ctx.lineTo(px,py-size*.34); ctx.stroke(); ctx.fillStyle=mid==='fufushi'?'#F06A2E':'#CDEEFF';
+    ctx.beginPath(); if(mid==='fufushi'){ctx.moveTo(px,py-size*.48);ctx.quadraticCurveTo(px+size*.10,py-size*.39,px,py-size*.31);ctx.quadraticCurveTo(px-size*.10,py-size*.39,px,py-size*.48);}else{ctx.moveTo(px,py-size*.50);ctx.lineTo(px+size*.09,py-size*.34);ctx.lineTo(px,py-size*.27);ctx.lineTo(px-size*.09,py-size*.34);ctx.closePath();} ctx.fill(); ctx.stroke(); return;
+  }
+  if (mid === 'kunoichi') {
+    ctx.fillStyle='#D7D4CC'; for(const dx of [-.055,.055]){ctx.save();ctx.translate(px+size*dx,py);ctx.rotate(dx<0?.58:-.58);ctx.beginPath();ctx.moveTo(0,-size*.18);ctx.lineTo(size*.055,size*.07);ctx.lineTo(0,size*.14);ctx.lineTo(-size*.055,size*.07);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();} return;
+  }
+  if (mid === 'miko') {
+    ctx.strokeStyle='#D9D0B7'; ctx.lineWidth=lw*.75; ctx.beginPath(); ctx.moveTo(px,py+size*.25); ctx.lineTo(px,py-size*.30); ctx.stroke(); ctx.fillStyle='#F5F0E5'; for(const dx of [-.08,0,.08]){ctx.fillRect(px+size*dx-size*.025,py-size*.37,size*.05,size*.16);ctx.strokeRect(px+size*dx-size*.025,py-size*.37,size*.05,size*.16);} return;
+  }
+  if (mid === 'haraite') {
+    ctx.strokeStyle='#BDAA87'; ctx.beginPath(); ctx.moveTo(px-size*.11,py-size*.29); ctx.quadraticCurveTo(px+size*.18,py-size*.05,px-size*.05,py+size*.22); ctx.stroke(); ctx.fillStyle='#F2E7BE'; ctx.fillRect(px-size*.06,py-size*.34,size*.12,size*.24); ctx.strokeRect(px-size*.06,py-size*.34,size*.12,size*.24); return;
+  }
+  if (mid === 'douchi') {
+    ctx.fillStyle='#B97839'; ctx.beginPath(); ctx.arc(px,py-size*.02,size*.22,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#D6B45D'; ctx.beginPath(); ctx.arc(px,py-size*.02,size*.05,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.strokeStyle='#6E5437'; ctx.beginPath(); ctx.moveTo(px-size*.28,py+size*.17); ctx.lineTo(px-size*.05,py+size*.02); ctx.stroke(); return;
+  }
+"""
+              text = text.replace(prop_sig, prop_v5, 1)
+              changed = True
+
+
           # The live bundle contains a self-embedded source copy plus the executable copy.
           # At least the executable copy must carry the new visual revision and all 12 tier-2 specs.
           required_new = [
