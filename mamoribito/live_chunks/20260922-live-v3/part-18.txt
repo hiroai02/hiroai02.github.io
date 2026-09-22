@@ -1,3 +1,5 @@
+window.MAMORIBITO_TEST_REV = '20260922-clean-v12';
+const TRAINING_TEST_UNLIMITED = true;
 .tier >= 4) {
       ctx.strokeStyle = j.tier >= 6 ? '#F2D788' : '#C9A75A';
       ctx.lineWidth = j.tier >= 6 ? 2 : 1;
