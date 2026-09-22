@@ -525,12 +525,12 @@ body { min-width: 280px; }
   background:#f5eac8;
   border-top:1px solid #c9b889;
   border-bottom:1px solid #bca879;
-  font-size:clamp(15px,4vw,17px);
+  font-size:clamp(18px,4.8vw,21px);
 }
 .home-status > div {
   display:grid;
   grid-template-columns:72px minmax(0,1fr) 72px minmax(0,1fr);
-  min-height:39px;
+  min-height:46px;
   align-items:center;
   border-top:1px solid #ded0aa;
 }
@@ -541,7 +541,7 @@ body { min-width: 280px; }
   color:#2e251b;
   font-weight:700;
   white-space:nowrap;
-  font-size:clamp(15px,4vw,17px);
+  font-size:clamp(18px,4.8vw,21px);
 }
 .home-status b {
   min-width:0;
@@ -551,7 +551,7 @@ body { min-width: 280px; }
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  font-size:clamp(15px,4.2vw,18px);
+  font-size:clamp(19px,5vw,22px);
 }
 .home-bonus {
   min-height:28px;
