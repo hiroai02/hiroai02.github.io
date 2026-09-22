@@ -18,80 +18,10 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
-          import base64
 
           index = Path("mamoribito/index.html")
           text = index.read_text(encoding="utf-8")
           changed = False
-
-          # LIVE_TEST_PATCH_20260922: keep the live test build easy to verify from the public GitHub Pages URL.
-          # Patch only the executable (last) UI code copy; PAGE_TEMPLATE remains a backup copy.
-          active_train = text.rfind("const TRAIN_KINDS = [")
-          if active_train < 0:
-              raise SystemExit("active training block not found")
-          active_prefix = text[:active_train]
-          if "const TRAINING_TEST_UNLIMITED = true;" not in active_prefix[-500:]:
-              text = text[:active_train] + "const TRAINING_TEST_UNLIMITED = true;\n" + text[active_train:]
-              changed = True
-
-          # Unlimited training: visible infinity label, never disable the button, never consume tickets.
-          replacements_test = {
-              "document.getElementById('trainTickets').textContent = \`${save.trainTickets} / ${BAL.training.ticketMax}\`;":
-                  "document.getElementById('trainTickets').textContent = TRAINING_TEST_UNLIMITED ? '∞（テスト）' : \`${save.trainTickets} / ${BAL.training.ticketMax}\`;",
-              "${save.trainTickets <= 0 ? 'disabled' : ''}>修行する</button>":
-                  "${(!TRAINING_TEST_UNLIMITED && save.trainTickets <= 0) ? 'disabled' : ''}>修行する</button>",
-              "  if (save.trainTickets <= 0) return;\n  save.trainTickets--;":
-                  "  if (!TRAINING_TEST_UNLIMITED && save.trainTickets <= 0) return;\n  if (!TRAINING_TEST_UNLIMITED) save.trainTickets--;",
-          }
-          active_start = text.rfind("// --- training ---")
-          if active_start < 0:
-              raise SystemExit("active training marker not found")
-          active_end = text.find("// --- servants ---", active_start)
-          if active_end < 0:
-              raise SystemExit("active training end marker not found")
-          train_block = text[active_start:active_end]
-          for old, new in replacements_test.items():
-              if old in train_block:
-                  train_block = train_block.replace(old, new)
-                  changed = True
-          text = text[:active_start] + train_block + text[active_end:]
-
-          # Home status also advertises test mode if that field exists in this live build.
-          home_start = text.rfind("function renderHome()")
-          home_end = text.find("function refreshGuideArt()", home_start)
-          if home_start >= 0 and home_end > home_start:
-              home_block = text[home_start:home_end]
-              old_home_stamina = "document.getElementById('homeStamina').textContent = save.trainTickets + '/' + BAL.training.ticketMax;"
-              new_home_stamina = "document.getElementById('homeStamina').textContent = TRAINING_TEST_UNLIMITED ? '∞ TEST' : (save.trainTickets + '/' + BAL.training.ticketMax);"
-              if old_home_stamina in home_block:
-                  home_block = home_block.replace(old_home_stamina, new_home_stamina)
-                  text = text[:home_start] + home_block + text[home_end:]
-                  changed = True
-
-          # Force the current profession label to the upper-right on the executable page CSS.
-          css_marker = "/* HOME CURRENT-JOB LABEL FIX 2026-09-22 LIVE */"
-          if css_marker not in text[:text.find("</style>")]:
-              css = """
-/* HOME CURRENT-JOB LABEL FIX 2026-09-22 LIVE */
-.home-class {
-  left:auto !important;
-  right:clamp(10px,3.6vw,20px) !important;
-  top:clamp(8px,2.8vw,16px) !important;
-  width:min(48vw,190px) !important;
-  z-index:8 !important;
-  text-align:right !important;
-  pointer-events:none;
-}
-.home-job-name,.home-job-sub,.home-class-ribbon { position:relative; z-index:1; }
-.home-job-name {
-  text-shadow:0 2px 0 #fff,0 -1px 0 #fff,1px 0 0 #fff,-1px 0 0 #fff,0 0 5px rgba(255,255,255,.9);
-}
-"""
-              style_end = text.find("</style>")
-              if style_end < 0:
-                  raise SystemExit("active style closing tag not found")
-              text = text[:style_end] + css + text[style_end:]
-              changed = True
 
           # Keep the approved advanced-class sprite sheet physically inside the live HTML.
           marker = "async function loadAdvancedJobSheet()"
@@ -127,14 +57,12 @@ jobs:
               text = text[:src_pos] + new_src + text[src_pos + len(old_src):]
               changed = True
 
-          # Mid-tier V5: make every tier-2 profession read as a different silhouette,
+          # Mid-tier V4: make every tier-2 profession read as a different silhouette,
           # not a recolour of the old/basic class. The renderer already supports all
           # of these equipment types; this changes headgear, weapon and garment together.
           replacements = {
-              "window.MAMORIBITO_VISUAL_REV = '2026-09-21-V4-MID';":
-                  "window.MAMORIBITO_VISUAL_REV = '2026-09-22-V5-MID-DISTINCT';",
               "window.MAMORIBITO_VISUAL_REV = '2026-09-21-V3';":
-                  "window.MAMORIBITO_VISUAL_REV = '2026-09-22-V5-MID-DISTINCT';",
+                  "window.MAMORIBITO_VISUAL_REV = '2026-09-21-V4-MID';",
               "    samurai:     ['melee',2,'kabuto','katana','coat','#a44735'],":
                   "    samurai:     ['melee',2,'kabuto','katana','armored','#8b332b'],",
               "    yariashi:    ['melee',2,'jingasa','spear','coat','#a77a45'],":
@@ -169,135 +97,10 @@ jobs:
                   replaced[old.split(":")[0].strip()] = count
                   changed = True
 
-
-          # MID_RENDER_V5: the old fallback renderer only looked at attack line
-          # (melee/ranged/magic/etc.), so several tier-2 jobs still looked almost identical.
-          # Thread the actual job id into the renderer and give all 12 mid-tier jobs their own
-          # headgear + weapon silhouette. This affects battle, job icons and My Page fallback art.
-          call_replacements = {
-              "drawProp(ctx, cx, cy, size, j, shadeC, outline, lw);":
-                  "drawProp(ctx, cx, cy, size, j, shadeC, outline, lw, u.hero.job);",
-              "drawHeadgear(ctx, cx, headY, headR, j, headGrad, shadeC, outline, lw);":
-                  "drawHeadgear(ctx, cx, headY, headR, j, headGrad, shadeC, outline, lw, u.hero.job);",
-              "drawHeadgear(ctx, size / 2, size / 2 + 2, size * 0.36, j, j.color, darken(j.color, 40), '#1B1610', size * 0.05);":
-                  "drawHeadgear(ctx, size / 2, size / 2 + 2, size * 0.36, j, j.color, darken(j.color, 40), '#1B1610', size * 0.05, jobId);",
-          }
-          for old, new in call_replacements.items():
-              if old in text:
-                  text = text.replace(old, new)
-                  changed = True
-
-          head_sig = "function drawHeadgear(ctx, cx, cy, r, j, bodyC, shadeC, outline, lw) {"
-          if head_sig in text:
-              head_v5 = """function drawHeadgear(ctx, cx, cy, r, j, bodyC, shadeC, outline, lw, jobId) {
-            ctx.fillStyle = bodyC; ctx.strokeStyle = outline; ctx.lineWidth = lw;
-            const mid = jobId || '';
-            // Tier-2 job-specific silhouettes. No visible face/body: equipment only.
-            if (mid === 'samurai') {
-              ctx.beginPath(); ctx.arc(cx, cy+r*.08, r*.92, Math.PI, 0); ctx.lineTo(cx+r*.72,cy+r*.42); ctx.lineTo(cx-r*.72,cy+r*.42); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.fillStyle=shadeC; ctx.beginPath(); ctx.moveTo(cx,cy-r*1.22); ctx.lineTo(cx+r*.17,cy-r*.48); ctx.lineTo(cx-r*.17,cy-r*.48); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.beginPath(); ctx.moveTo(cx-r*.62,cy-r*.55); ctx.quadraticCurveTo(cx,cy-r*.92,cx+r*.62,cy-r*.55); ctx.stroke(); return;
-            }
-            if (mid === 'yariashi') {
-              ctx.beginPath(); ctx.moveTo(cx,cy-r*.95); ctx.lineTo(cx+r*1.08,cy+r*.18); ctx.lineTo(cx-r*1.08,cy+r*.18); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.fillStyle=shadeC; ctx.fillRect(cx-r*.10,cy+r*.16,r*.20,r*.48); ctx.strokeRect(cx-r*.10,cy+r*.16,r*.20,r*.48); return;
-            }
-            if (mid === 'kyousenshi') {
-              ctx.beginPath(); ctx.arc(cx,cy+r*.05,r*.92,Math.PI,0); ctx.lineTo(cx+r*.78,cy+r*.52); ctx.lineTo(cx-r*.78,cy+r*.52); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.fillStyle=shadeC;
-              ctx.beginPath(); ctx.moveTo(cx-r*.62,cy-r*.45); ctx.lineTo(cx-r*1.18,cy-r*1.05); ctx.lineTo(cx-r*.88,cy-r*.12); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.beginPath(); ctx.moveTo(cx+r*.62,cy-r*.45); ctx.lineTo(cx+r*1.18,cy-r*1.05); ctx.lineTo(cx+r*.88,cy-r*.12); ctx.closePath(); ctx.fill(); ctx.stroke(); return;
-            }
-            if (mid === 'sogeki') {
-              ctx.beginPath(); ctx.arc(cx,cy-r*.05,r*.80,Math.PI,0); ctx.fill(); ctx.stroke();
-              ctx.beginPath(); ctx.ellipse(cx,cy+r*.20,r*1.02,r*.18,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
-              ctx.strokeStyle='#E8D8A8'; ctx.lineWidth=lw*.7; ctx.beginPath(); ctx.moveTo(cx+r*.42,cy-r*.48); ctx.quadraticCurveTo(cx+r*.90,cy-r*1.18,cx+r*.62,cy-r*1.48); ctx.stroke(); return;
-            }
-            if (mid === 'meigen') {
-              ctx.beginPath(); ctx.moveTo(cx,cy-r*1.28); ctx.quadraticCurveTo(cx-r*.82,cy-r*.58,cx-r*.72,cy+r*.38); ctx.lineTo(cx+r*.72,cy+r*.38); ctx.quadraticCurveTo(cx+r*.82,cy-r*.58,cx,cy-r*1.28); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.strokeStyle='#E9D47A'; ctx.lineWidth=lw*.7; ctx.beginPath(); ctx.arc(cx,cy-r*.18,r*.50,0,Math.PI*2); ctx.stroke(); return;
-            }
-            if (mid === 'fufushi') {
-              ctx.beginPath(); ctx.arc(cx,cy+r*.08,r*.88,Math.PI,0); ctx.lineTo(cx+r*.76,cy+r*.50); ctx.lineTo(cx-r*.76,cy+r*.50); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.fillStyle='#F07B32'; ctx.beginPath(); ctx.moveTo(cx,cy-r*1.35); ctx.quadraticCurveTo(cx+r*.55,cy-r*.76,cx+r*.18,cy-r*.30); ctx.quadraticCurveTo(cx-r*.42,cy-r*.72,cx,cy-r*1.35); ctx.fill(); ctx.stroke(); return;
-            }
-            if (mid === 'hyofushi') {
-              ctx.beginPath(); ctx.arc(cx,cy+r*.08,r*.88,Math.PI,0); ctx.lineTo(cx+r*.76,cy+r*.50); ctx.lineTo(cx-r*.76,cy+r*.50); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.fillStyle='#CDEBFF'; for (const dx of [-.58,0,.58]) { ctx.beginPath(); ctx.moveTo(cx+r*dx,cy-r*.48); ctx.lineTo(cx+r*dx+r*.18,cy-r*1.25); ctx.lineTo(cx+r*dx+r*.34,cy-r*.45); ctx.closePath(); ctx.fill(); ctx.stroke(); } return;
-            }
-            if (mid === 'kunoichi') {
-              ctx.beginPath(); ctx.arc(cx,cy,r*.94,Math.PI*.92,Math.PI*2.08); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.fillStyle=outline; roundBar(ctx,cx,cy+r*.16,r*1.78,r*.24);
-              ctx.strokeStyle='#8B9AA5'; ctx.lineWidth=lw*.6; ctx.beginPath(); ctx.moveTo(cx-r*.76,cy-r*.52); ctx.lineTo(cx+r*.55,cy-r*.85); ctx.stroke(); return;
-            }
-            if (mid === 'miko') {
-              ctx.beginPath(); ctx.arc(cx,cy+r*.04,r*.88,0,Math.PI*2); ctx.fill(); ctx.stroke();
-              ctx.fillStyle='#F6F0E6'; ctx.beginPath(); ctx.moveTo(cx-r*.92,cy-r*.18); ctx.lineTo(cx-r*.58,cy+r*.95); ctx.lineTo(cx-r*.20,cy+r*.28); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.beginPath(); ctx.moveTo(cx+r*.92,cy-r*.18); ctx.lineTo(cx+r*.58,cy+r*.95); ctx.lineTo(cx+r*.20,cy+r*.28); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.strokeStyle='#FFD9A0'; ctx.beginPath(); ctx.arc(cx,cy-r*.20,r*.58,Math.PI*1.15,Math.PI*1.85); ctx.stroke(); return;
-            }
-            if (mid === 'haraite') {
-              ctx.beginPath(); ctx.moveTo(cx,cy-r*1.18); ctx.lineTo(cx+r*.82,cy-r*.10); ctx.lineTo(cx+r*.68,cy+r*.48); ctx.lineTo(cx-r*.68,cy+r*.48); ctx.lineTo(cx-r*.82,cy-r*.10); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.fillStyle='#EFE4BD'; ctx.fillRect(cx-r*.18,cy-r*.92,r*.36,r*.58); ctx.strokeRect(cx-r*.18,cy-r*.92,r*.36,r*.58); return;
-            }
-            if (mid === 'dokuyashi') {
-              ctx.beginPath(); ctx.arc(cx,cy,r*.94,Math.PI*.92,Math.PI*2.08); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.fillStyle='#A7D35E'; ctx.beginPath(); ctx.arc(cx+r*.56,cy-r*.62,r*.15,0,Math.PI*2); ctx.fill(); ctx.stroke();
-              ctx.fillStyle=outline; roundBar(ctx,cx,cy+r*.15,r*1.55,r*.20); return;
-            }
-            if (mid === 'douchi') {
-              ctx.beginPath(); ctx.moveTo(cx-r*.62,cy+r*.42); ctx.quadraticCurveTo(cx-r*.25,cy-r*.85,cx-r*.05,cy-r*1.15); ctx.quadraticCurveTo(cx+r*.35,cy-r*.72,cx+r*.58,cy+r*.42); ctx.closePath(); ctx.fill(); ctx.stroke();
-              ctx.strokeStyle='#D9B06B'; ctx.lineWidth=lw*.8; ctx.beginPath(); ctx.arc(cx,cy+r*.04,r*.60,Math.PI*.12,Math.PI*.88); ctx.stroke(); return;
-            }
-"""
-              text = text.replace(head_sig, head_v5, 1)
-              changed = True
-
-          prop_sig = "function drawProp(ctx, cx, cy, size, j, shadeC, outline, lw) {"
-          if prop_sig in text:
-              prop_v5 = """function drawProp(ctx, cx, cy, size, j, shadeC, outline, lw, jobId) {
-            ctx.strokeStyle = outline; ctx.lineWidth = lw;
-            const px = cx + size * 0.30, py = cy + size * 0.02;
-            const mid = jobId || '';
-            if (mid === 'samurai') {
-              ctx.save(); ctx.translate(px,py); ctx.rotate(-.62); ctx.fillStyle='#E8E4DA'; ctx.fillRect(-size*.035,-size*.40,size*.07,size*.52); ctx.strokeRect(-size*.035,-size*.40,size*.07,size*.52); ctx.fillStyle='#B88A45'; ctx.fillRect(-size*.11,size*.04,size*.22,size*.045); ctx.fillStyle=shadeC; ctx.fillRect(-size*.035,size*.08,size*.07,size*.17); ctx.restore(); return;
-            }
-            if (mid === 'yariashi') {
-              ctx.save(); ctx.translate(px,py); ctx.rotate(-.12); ctx.strokeStyle='#6E5437'; ctx.lineWidth=lw*.75; ctx.beginPath(); ctx.moveTo(0,size*.34); ctx.lineTo(0,-size*.52); ctx.stroke(); ctx.fillStyle='#D9D7CF'; ctx.beginPath(); ctx.moveTo(0,-size*.62); ctx.lineTo(size*.07,-size*.48); ctx.lineTo(-size*.07,-size*.48); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); return;
-            }
-            if (mid === 'kyousenshi') {
-              ctx.save(); ctx.translate(px,py); ctx.rotate(-.48); ctx.fillStyle='#BFC2C5'; ctx.beginPath(); ctx.moveTo(-size*.04,-size*.42); ctx.lineTo(size*.18,-size*.24); ctx.lineTo(size*.10,size*.10); ctx.lineTo(-size*.10,size*.10); ctx.lineTo(-size*.18,-size*.24); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle=shadeC; ctx.fillRect(-size*.035,size*.06,size*.07,size*.24); ctx.restore(); return;
-            }
-            if (mid === 'sogeki' || mid === 'dokuyashi' || mid === 'meigen') {
-              const rad = mid==='meigen'?size*.30:size*.26; ctx.beginPath(); ctx.arc(px,py-size*.02,rad,-1.05,1.05); ctx.stroke(); ctx.beginPath(); ctx.moveTo(px+Math.cos(-1.05)*rad,py-size*.02+Math.sin(-1.05)*rad); ctx.lineTo(px+Math.cos(1.05)*rad,py-size*.02+Math.sin(1.05)*rad); ctx.stroke();
-              if(mid==='dokuyashi'){ctx.fillStyle='#98C95B';ctx.beginPath();ctx.arc(px-size*.02,py-size*.33,size*.045,0,Math.PI*2);ctx.fill();}
-              if(mid==='meigen'){ctx.fillStyle='#F3E2A2';ctx.fillRect(px-size*.025,py-size*.38,size*.05,size*.13);ctx.strokeRect(px-size*.025,py-size*.38,size*.05,size*.13);} return;
-            }
-            if (mid === 'fufushi' || mid === 'hyofushi') {
-              ctx.beginPath(); ctx.moveTo(px,py+size*.24); ctx.lineTo(px,py-size*.34); ctx.stroke(); ctx.fillStyle=mid==='fufushi'?'#F06A2E':'#CDEEFF';
-              ctx.beginPath(); if(mid==='fufushi'){ctx.moveTo(px,py-size*.48);ctx.quadraticCurveTo(px+size*.10,py-size*.39,px,py-size*.31);ctx.quadraticCurveTo(px-size*.10,py-size*.39,px,py-size*.48);}else{ctx.moveTo(px,py-size*.50);ctx.lineTo(px+size*.09,py-size*.34);ctx.lineTo(px,py-size*.27);ctx.lineTo(px-size*.09,py-size*.34);ctx.closePath();} ctx.fill(); ctx.stroke(); return;
-            }
-            if (mid === 'kunoichi') {
-              ctx.fillStyle='#D7D4CC'; for(const dx of [-.055,.055]){ctx.save();ctx.translate(px+size*dx,py);ctx.rotate(dx<0?.58:-.58);ctx.beginPath();ctx.moveTo(0,-size*.18);ctx.lineTo(size*.055,size*.07);ctx.lineTo(0,size*.14);ctx.lineTo(-size*.055,size*.07);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();} return;
-            }
-            if (mid === 'miko') {
-              ctx.strokeStyle='#D9D0B7'; ctx.lineWidth=lw*.75; ctx.beginPath(); ctx.moveTo(px,py+size*.25); ctx.lineTo(px,py-size*.30); ctx.stroke(); ctx.fillStyle='#F5F0E5'; for(const dx of [-.08,0,.08]){ctx.fillRect(px+size*dx-size*.025,py-size*.37,size*.05,size*.16);ctx.strokeRect(px+size*dx-size*.025,py-size*.37,size*.05,size*.16);} return;
-            }
-            if (mid === 'haraite') {
-              ctx.strokeStyle='#BDAA87'; ctx.beginPath(); ctx.moveTo(px-size*.11,py-size*.29); ctx.quadraticCurveTo(px+size*.18,py-size*.05,px-size*.05,py+size*.22); ctx.stroke(); ctx.fillStyle='#F2E7BE'; ctx.fillRect(px-size*.06,py-size*.34,size*.12,size*.24); ctx.strokeRect(px-size*.06,py-size*.34,size*.12,size*.24); return;
-            }
-            if (mid === 'douchi') {
-              ctx.fillStyle='#B97839'; ctx.beginPath(); ctx.arc(px,py-size*.02,size*.22,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#D6B45D'; ctx.beginPath(); ctx.arc(px,py-size*.02,size*.05,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.strokeStyle='#6E5437'; ctx.beginPath(); ctx.moveTo(px-size*.28,py+size*.17); ctx.lineTo(px-size*.05,py+size*.02); ctx.stroke(); return;
-            }
-"""
-              text = text.replace(prop_sig, prop_v5, 1)
-              changed = True
-
-
           # The live bundle contains a self-embedded source copy plus the executable copy.
           # At least the executable copy must carry the new visual revision and all 12 tier-2 specs.
           required_new = [
-              "window.MAMORIBITO_VISUAL_REV = '2026-09-22-V5-MID-DISTINCT';",
+              "window.MAMORIBITO_VISUAL_REV = '2026-09-21-V4-MID';",
               "samurai:     ['melee',2,'kabuto','katana','armored','#8b332b']",
               "yariashi:    ['melee',2,'jingasa','longspear','longcoat','#9a6a35']",
               "kyousenshi:  ['melee',2,'hornhelm','ogreblade','armored','#672523']",
@@ -313,33 +116,7 @@ jobs:
           ]
           missing = [needle for needle in required_new if needle not in text]
           if missing:
-              raise SystemExit("mid-tier V5 markers missing: " + repr(missing))
-
-          # Give every tier-2 job an unmistakable profession-specific silhouette.
-          # These are equipment/accessory-only overlays: no face, skin or body is drawn.
-          # Dominant weapons stay on the left-facing side of the composition.
-          if "function midTierExtras(id, c, t, d)" not in text:
-              build_marker = "  function build(id, spec) {"
-              build_pos = text.rfind(build_marker)
-              if build_pos < 0:
-                  raise SystemExit("active profession build function not found")
-              mid_extras = base64.b64decode('ICBmdW5jdGlvbiBtaWRUaWVyRXh0cmFzKGlkLCBjLCB0LCBkKSB7CiAgICBjb25zdCBjb21tb249J3N0cm9rZT0iJytkKyciIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCInOwogICAgaWYgKGlkPT09J3NhbXVyYWknKSByZXR1cm4gJzxnICcrY29tbW9uKyc+PHBhdGggZmlsbD0iJyt0KyciIHN0cm9rZS13aWR0aD0iNyIgZD0iTTkxIDEzMiA3MCAxNDMgODIgMTY2IDEwNCAxNTFaTTE2NSAxMzJsMjIgMTEtMTMgMjMtMjItMTVaIi8+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSInK3QrJyIgc3Ryb2tlLXdpZHRoPSI4IiBkPSJNMTAxIDIxOFExMjggMjI5IDE1NiAyMTYiLz48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNkOWRkZTAiIHN0cm9rZS13aWR0aD0iMTAiIGQ9Ik0xODEgMTk3IDIxOSAxMjYiLz48cGF0aCBzdHJva2U9IicrdCsnIiBzdHJva2Utd2lkdGg9IjEyIiBkPSJNMTcyIDE5NGgyOCIvPjwvZz4nOwogICAgaWYgKGlkPT09J3lhcmlhc2hpJykgcmV0dXJuICc8ZyAnK2NvbW1vbisnPjxwYXRoIGZpbGw9IicrYysnIiBzdHJva2Utd2lkdGg9IjYiIGQ9Ik0yMiA3OCA1OCA5MCA0NyAxMjggMjcgMTEyWiIvPjxwYXRoIGZpbGw9IicrdCsnIiBzdHJva2Utd2lkdGg9IjUiIGQ9Ik0yOCA4NiA1MiA5NCA0NyAxMDUgMjUgOTlaIi8+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSInK3QrJyIgc3Ryb2tlLXdpZHRoPSI3IiBkPSJNOTcgMjI0IDgzIDI1N00xNTYgMjI2bDEzIDI4Ii8+PC9nPic7CiAgICBpZiAoaWQ9PT0na3lvdXNlbnNoaScpIHJldHVybiAnPGcgJytjb21tb24rJz48cGF0aCBmaWxsPSInK3QrJyIgc3Ryb2tlLXdpZHRoPSI3IiBkPSJNODggMTM1IDU3IDExOSA3MCAxNTEgMTAxIDE1OFpNMTY4IDEzNWwzMS0xNi0xMyAzMi0zMSA3WiIvPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2FlYjRiOCIgc3Ryb2tlLXdpZHRoPSI3IiBzdHJva2UtZGFzaGFycmF5PSI5IDYiIGQ9Ik05MiAyMTFRMTI4IDIzMiAxNjYgMjA3Ii8+PHBhdGggZmlsbD0iJyt0KyciIHN0cm9rZS13aWR0aD0iNSIgZD0iTTcwIDE1MSA1NSAxNjYgNzggMTcxWk0xODYgMTUxbDE2IDE1LTI0IDVaIi8+PC9nPic7CiAgICBpZiAoaWQ9PT0nc29nZWtpJykgcmV0dXJuICc8ZyAnK2NvbW1vbisnPjxwYXRoIGZpbGw9IicrYysnIiBzdHJva2Utd2lkdGg9IjciIGQ9Ik0xNzQgMTIxIDIwNCAxMzAgMTkxIDIyNSAxNjQgMjE2WiIvPjxwYXRoIHN0cm9rZT0iI2Q5ZGRlMCIgc3Ryb2tlLXdpZHRoPSI1IiBkPSJNMTc2IDEzMiAxODggODZNMTg1IDEzNWwxOC00NE0xOTMgMTM5bDIyLTM4Ii8+PHBhdGggZmlsbD0iJyt0KyciIHN0cm9rZS13aWR0aD0iNSIgZD0iTTE4NCA4NCAxOTQgOTIgMTg3IDEwM1pNMjAwIDg5bDEwIDgtOSAxMFpNMjE0IDk5bDkgOC0xMCA5WiIvPjwvZz4nOwogICAgaWYgKGlkPT09J21laWdlbicpIHJldHVybiAnPGcgJytjb21tb24rJz48Y2lyY2xlIGN4PSI1MSIgY3k9IjE1MyIgcj0iMTciIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Q4ZjNkZiIgc3Ryb2tlLXdpZHRoPSI1Ii8+PHBhdGggZmlsbD0iI2Y1ZTdiMyIgc3Ryb2tlLXdpZHRoPSI0IiBkPSJNMTgzIDEwNGgyNnY0NGgtMjZaTTE5NyAxNTdoMjV2NDRoLTI1Wk0xNzMgMjExaDI0djQwaC0yNFoiLz48cGF0aCBzdHJva2U9IicrdCsnIiBzdHJva2Utd2lkdGg9IjMiIGQ9Ik0xOTAgMTEzdjI1TTIwNCAxNjZ2MjVNMTgwIDIxOXYyMyIvPjwvZz4nOwogICAgaWYgKGlkPT09J2Z1ZnVzaGknKSByZXR1cm4gJzxnICcrY29tbW9uKyc+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZWY3YTM1IiBzdHJva2Utd2lkdGg9IjgiIGQ9Ik0zNiA4MlExNyAxMDkgMzkgMTMyTTQyIDY0UTE4IDQ1IDM0IDI0TTg4IDExOVExMDkgOTkgOTYgNzUiLz48Y2lyY2xlIGN4PSIzNiIgY3k9IjgyIiByPSI2IiBmaWxsPSIjZmZkMzZhIiBzdHJva2U9IicrZCsnIiBzdHJva2Utd2lkdGg9IjQiLz48Y2lyY2xlIGN4PSI5NCIgY3k9IjgwIiByPSI1IiBmaWxsPSIjZmZkMzZhIiBzdHJva2U9IicrZCsnIiBzdHJva2Utd2lkdGg9IjQiLz48L2c+JzsKICAgIGlmIChpZD09PSdoeW9mdXNoaScpIHJldHVybiAnPGcgJytjb21tb24rJyBmaWxsPSIjYzdlZGZhIiBzdHJva2Utd2lkdGg9IjUiPjxwYXRoIGQ9Ik0zNSA4MCA0OCA2MSA1OSA4MiA0NyA5OFoiLz48cGF0aCBkPSJNODcgMTExIDk5IDkzIDExMCAxMTIgOTggMTI4WiIvPjxwYXRoIGQ9Ik0xOTAgMTQ1IDIwMiAxMjYgMjE0IDE0NiAyMDIgMTYyWiIvPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzhlZDBlYSIgc3Ryb2tlLXdpZHRoPSI1IiBkPSJNMzEgMTExIDYxIDExMU00NiA5NnYzMSIvPjwvZz4nOwogICAgaWYgKGlkPT09J2t1bm9pY2hpJykgcmV0dXJuICc8ZyAnK2NvbW1vbisnPjxwYXRoIGZpbGw9IicrdCsnIiBzdHJva2Utd2lkdGg9IjYiIGQ9Ik0xNTkgOTNRMjA0IDg4IDIyNiAxMTIgMTkxIDExMSAxNzAgMTI2WiIvPjxwYXRoIGZpbGw9IicrYysnIiBzdHJva2Utd2lkdGg9IjYiIGQ9Ik0xNjQgMTA5UTIxMSAxMjEgMjIyIDE1MSAxOTAgMTM3IDE2NiAxMzlaIi8+PHJlY3QgeD0iMTUzIiB5PSIyMDUiIHdpZHRoPSIyNyIgaGVpZ2h0PSIzMiIgcng9IjYiIGZpbGw9IicrdCsnIiBzdHJva2Utd2lkdGg9IjYiLz48cmVjdCB4PSIxODQiIHk9IjE5OCIgd2lkdGg9IjI1IiBoZWlnaHQ9IjMxIiByeD0iNiIgZmlsbD0iJytjKyciIHN0cm9rZS13aWR0aD0iNiIvPjwvZz4nOwogICAgaWYgKGlkPT09J21pa28nKSByZXR1cm4gJzxnICcrY29tbW9uKyc+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZjRlZWUzIiBzdHJva2Utd2lkdGg9IjkiIGQ9Ik05NiAxNDJRNzEgMTgwIDgyIDIzMk0xNjAgMTQycTI3IDM4IDE0IDkwIi8+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDIzYjUxIiBzdHJva2Utd2lkdGg9IjYiIGQ9Ik0xMDEgMTQ1UTc5IDE4MCA4OCAyMjVNMTU1IDE0NXEyMyAzNSAxMyA4MCIvPjxjaXJjbGUgY3g9Ijc5IiBjeT0iMjM0IiByPSI5IiBmaWxsPSIjZDliMDRiIiBzdHJva2Utd2lkdGg9IjUiLz48Y2lyY2xlIGN4PSIxNzYiIGN5PSIyMzQiIHI9IjkiIGZpbGw9IiNkOWIwNGIiIHN0cm9rZS13aWR0aD0iNSIvPjwvZz4nOwogICAgaWYgKGlkPT09J2hhcmFpdGUnKSByZXR1cm4gJzxnICcrY29tbW9uKycgZmlsbD0iI2Y1ZTdiMyIgc3Ryb2tlLXdpZHRoPSI0Ij48cGF0aCBkPSJNMTgzIDk2aDI3djQ4aC0yN1oiLz48cGF0aCBkPSJNMTk5IDE1MWgyN3Y0OGgtMjdaIi8+PHBhdGggZD0iTTE3MyAyMDdoMjd2NDZoLTI3WiIvPjxwYXRoIGQ9Ik00MCAyMTFoMjV2NDNINDBaIi8+PHBhdGggc3Ryb2tlPSInK3QrJyIgc3Ryb2tlLXdpZHRoPSIzIiBkPSJNMTkwIDEwNXYyOE0yMDYgMTYwdjI4TTE4MCAyMTZ2MjdNNDcgMjIwdjI1Ii8+PC9nPic7CiAgICBpZiAoaWQ9PT0nZG9rdXlhc2hpJykgcmV0dXJuICc8ZyAnK2NvbW1vbisnPjxnIGZpbGw9IiM2ZjlmNGIiIHN0cm9rZS13aWR0aD0iNSI+PHBhdGggZD0iTTE2OSAyMDJoMjBsNSAzNmgtMzBaIi8+PHBhdGggZD0iTTE5NSAxOTZoMjBsNyAzOGgtMzFaIi8+PGNpcmNsZSBjeD0iMTc5IiBjeT0iMjAzIiByPSI3Ii8+PGNpcmNsZSBjeD0iMjA1IiBjeT0iMTk3IiByPSI3Ii8+PC9nPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlmZDM2NSIgc3Ryb2tlLXdpZHRoPSI1IiBkPSJNNDQgMTE2IDI3IDEwM000NyAxMjkgMjUgMTIzTTUwIDE0MyAyNyAxNDMiLz48L2c+JzsKICAgIGlmIChpZD09PSdkb3VjaGknKSByZXR1cm4gJzxnICcrY29tbW9uKyc+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDhiMDVmIiBzdHJva2Utd2lkdGg9IjgiIGQ9Ik0yNCAxNDNRNTggOTEgOTQgMTQzUTU4IDE5OCAyNCAxNDNaIi8+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSInK3QrJyIgc3Ryb2tlLXdpZHRoPSI2IiBkPSJNMjYgMTQzUTU4IDExMSA5MSAxNDNRNTggMTc4IDI2IDE0M1oiLz48cGF0aCBmaWxsPSInK2MrJyIgc3Ryb2tlLXdpZHRoPSI1IiBkPSJNNTUgMTg3IDQ0IDIxNyA2MSAyNDUgNzYgMjE1WiIvPjwvZz4nOwogICAgcmV0dXJuICcnOwogIH0KCg==').decode('utf-8')
-              text = text[:build_pos] + mid_extras + text[build_pos:]
-              changed = True
-
-          build_pos = text.rfind("  function build(id, spec) {")
-          build_end = text.find("  for (const [id,spec]", build_pos)
-          if build_pos < 0 or build_end < 0:
-              raise SystemExit("active profession build block not found")
-          build_block = text[build_pos:build_end]
-          old_build = "      head(headType,c,t,d)+\n      extras(id,tier,t,d)+"
-          new_build = "      head(headType,c,t,d)+\n      midTierExtras(id,c,t,d)+\n      extras(id,tier,t,d)+"
-          if old_build in build_block:
-              build_block = build_block.replace(old_build, new_build, 1)
-              text = text[:build_pos] + build_block + text[build_end:]
-              changed = True
-          elif "midTierExtras(id,c,t,d)+" not in build_block:
-              raise SystemExit("mid-tier extras hook missing")
+              raise SystemExit("mid-tier V4 markers missing: " + repr(missing))
 
           func_pos = text.rfind(marker)
           end = text.find("function darken", func_pos)
