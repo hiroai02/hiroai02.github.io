@@ -19,10 +19,10 @@ html,body{margin:0;min-height:100%;background:#ecddb0;color:#3a2e1e;font-family:
 <script>
 (async()=>{
   const base='./live_chunks/20260922-live-v9-clean/';
-  const files=["part-00.txt","part-01.txt","part-02.txt","part-03.txt","part-04.txt","part-05.txt","part-14.txt","part-15.txt","part-16.txt","part-17.txt","part-18.txt"];
+  const files=["part-00.txt","part-01.txt","part-02.txt","part-03.txt","part-04.txt","part-05.txt","part-06.txt","part-07.txt","part-17.txt","part-18.txt"];
   try{
     const parts=await Promise.all(files.map(async f=>{
-      const r=await fetch(base+f+'?v=20260922-live-v10-single-source',{cache:'no-store'});
+      const r=await fetch(base+f+'?v=20260922-live-v11-coherent',{cache:'no-store'});
       if(!r.ok) throw new Error(f+' '+r.status);
       return r.text();
     }));
