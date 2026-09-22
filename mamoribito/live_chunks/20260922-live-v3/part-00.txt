@@ -2733,6 +2733,14 @@ html { -webkit-text-size-adjust:100%; }
 .home-class{left:auto!important;right:clamp(10px,3.6vw,20px)!important;top:clamp(8px,2.8vw,16px)!important;width:min(48vw,190px)!important;z-index:8!important;text-align:right!important;pointer-events:none}
 .home-job-name,.home-job-sub,.home-class-ribbon{position:relative;z-index:1}
 .home-job-name{text-shadow:0 2px 0 #fff,0 -1px 0 #fff,1px 0 0 #fff,-1px 0 0 #fff,0 0 5px rgba(255,255,255,.9)}
+
+/* ALL37 ART VISIBILITY FIX 2026-09-22 */
+.tree-icon{width:72px!important;height:72px!important;object-fit:contain!important;padding:2px!important}
+.party-job-icon{width:44px!important;height:44px!important;object-fit:contain!important}
+.train-avatar{width:64px!important;height:64px!important;object-fit:contain!important}
+.ic.lg{width:64px!important;height:64px!important;object-fit:contain!important;padding:2px!important}
+.tree-node{min-height:82px!important;gap:14px!important}
+.shop-item .ic.lg{flex:none!important}
 </style>
 </head>
 <body>
