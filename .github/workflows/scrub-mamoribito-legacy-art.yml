@@ -31,12 +31,22 @@ jobs:
           text, n1 = plain.subn("", text)
           text, n2 = escaped.subn("", text)
 
-          if plain.search(text) or escaped.search(text):
-              raise SystemExit("legacy hero JPEG data still present")
+          advanced_key = re.compile(r',"advanced_jobs_v1":"data:image/webp;base64,[A-Za-z0-9+/=]+"')
+          advanced_key_escaped = re.compile(r',\\\"advanced_jobs_v1\\\":\\\"data:image/webp;base64,[A-Za-z0-9+/=]+\\\"')
+          sheet_b64 = re.compile(r"const sheetB64 = '[A-Za-z0-9+/=]+';")
+          sheet_b64_escaped = re.compile(r"const sheetB64 = '[A-Za-z0-9+/=]+';")
 
-          if n1 or n2:
+          text, n3 = advanced_key.subn("", text)
+          text, n4 = advanced_key_escaped.subn("", text)
+          text, n5 = sheet_b64.subn("const sheetB64 = '';", text)
+          text, n6 = sheet_b64_escaped.subn("const sheetB64 = '';", text)
+
+          if plain.search(text) or escaped.search(text) or advanced_key.search(text) or advanced_key_escaped.search(text):
+              raise SystemExit("legacy profession image data still present")
+
+          if any((n1, n2, n3, n4, n5, n6)):
               p.write_text(text, encoding="utf-8")
-          print(f"removed legacy hero JPEG blobs: plain={n1}, embedded-template={n2}")
+          print(f"removed legacy blobs: hero_plain={n1}, hero_template={n2}, advanced={n3+n4}, inline_sheet={n5+n6}")
 
       - name: Commit scrubbed live build
         shell: bash
