@@ -1,4 +1,3 @@
--home'); } },\n      ]);\n      return;\n    }\n  });\n\n  window.addEventListener('resize', () => {\n    if (document.getElementById('v-battle').classList.contains('active')) fitBoard();\n  });\n}\n\nfunction route(id) {\n  showView(id);\n  // Navigation only ever persists (see persist()'s comment) - it never forces the\n  // publish/reload itself, so moving between screens never visibly kicks the player back to\n  // home mid-action.\n  if (id === 'v-home') renderHome();\n  if (id === 'v-quests') renderQuests();\n  if (id === 'v-quest-detail' && selectedQuestId) renderQuestDetail(selectedQuestId);\n  if (id === 'v-party') renderParty();\n  if (id === 'v-tree') renderTree();\n  if (id === 'v-train') renderTraining();\n  if (id === 'v-titles') renderTitles();\n  if (id === 'v-codex') renderCodex();\n  if (id === 'v-servant') renderServant();\n  if (id === 'v-settings') {\n    const sb = document.getElementById('settingsMuteBtn');\n    if (sb) sb.textContent = save.muted ? '音 OFF' : '音 ON';\n  }\n}\n\n// The only moments that force an immediate publish: the tab going hidden or unloading. Both are\n// invisible to the player (they're not looking at the screen when the reload happens), unlike\n// forcing it on every route('v-home') navigation.\ndocument.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushNow(); });\nwindow.addEventListener('pagehide', () => flushNow());\n\n(function init() {\n  bind();\n  document.getElementById('muteBtn').textContent = save.muted ? '音 OFF' : '音 ON';\n  route('v-home');\n})();\n<\/script>\n</body>\n</html>\n";</script>
 <script>/* --- 10_core.js --- */
 // Foundation: data access, save/load, hero progression, legend score, audio, view routing.
 // All content (jobs/enemies/maps/quests/balance) lives in data/*.json, inlined at build time as
@@ -102,125 +101,43 @@ const DEFAULT_SAVE = {
   muted: false,
 };
 
-// Persistence: an Artifact's localStorage does NOT reliably survive reopening the page (the
-// runtime says as much - "nothing is kept unless the page publishes it"), which is exactly the
-// bug the president hit (進行が保存されない). The real save lives baked into the page itself:
-// window.SAVE_STATE is what this exact page was published with, and window.PAGE_TEMPLATE (see
-// build.ps1) is this page's own source with the save data left as a hole, so a running page can
-// regenerate a fresh, correctly self-referencing copy of itself and publish that via the
-// `artifact` capability. localStorage is kept too, but only as a same-tab/same-session nicety -
-// never the thing actually relied on to survive a reopen.
+// Persistence: single-source live save only. No embedded page copies, no self-publishing.
 let save = load();
 
 function load() {
-  const embedded = window.SAVE_STATE;
   let s;
-  // Rebuild V2 intentionally starts clean after the UI/battle reconstruction. Old embedded or
-  // local saves are not migrated: once this build is published, only SAVE_VERSION 2 data loads.
-  if (embedded && embedded.heroes && embedded.version === SAVE_VERSION) {
-    s = { ...DEFAULT_SAVE, ...embedded };
-  } else {
-    try {
-      const raw = JSON.parse(localStorage.getItem(SAVE_KEY));
-      s = (raw && raw.heroes && raw.version === SAVE_VERSION)
-        ? { ...DEFAULT_SAVE, ...raw }
-        : { ...DEFAULT_SAVE, heroes: defaultHeroes() };
-    } catch {
-      s = { ...DEFAULT_SAVE, heroes: defaultHeroes() };
-    }
+  try {
+    const raw = JSON.parse(localStorage.getItem(SAVE_KEY));
+    s = (raw && raw.heroes && raw.version === SAVE_VERSION)
+      ? { ...DEFAULT_SAVE, ...raw }
+      : { ...DEFAULT_SAVE, heroes: defaultHeroes() };
+  } catch {
+    s = { ...DEFAULT_SAVE, heroes: defaultHeroes() };
   }
-  // self-healing: older saves predate permanent orb ownership. Any orb already equipped in an
-  // old save is grandfathered into permanent ownership so no progress is lost.
   if (!s.ownedOrbs) s.ownedOrbs = [];
   for (const h of s.heroes) if (h.orb && !s.ownedOrbs.includes(h.orb)) s.ownedOrbs.push(h.orb);
-  // self-healing: older saves predate unlockedJobs, and every hero's CURRENT job must count as
-  // unlocked regardless of when it was reached
   if (!s.unlockedJobs) s.unlockedJobs = [...START_JOBS];
-  for (const h of s.heroes) if (!s.unlockedJobs.includes(h.job)) s.unlockedJobs.push(h.job);
-  // self-healing: older saves predate per-hero history (president: なったことない職業だけ
-  // 表示して転職 - hide jobs a hero has already personally held from their own transfer list,
-  // since specialJobsAvailable() is party-wide and kept re-showing the same hybrid/special
-  // job to every hero once anyone unlocked it). Seed with at least the hero's current job.
-  for (const h of s.heroes) if (!h.history) h.history = [h.job];
-  // self-healing: older saves predate the monster-gallery discovery list.
+  for (const h of s.heroes) if (h.job && !s.unlockedJobs.includes(h.job)) s.unlockedJobs.push(h.job);
+  if (!s.questCleared) s.questCleared = {};
   if (!s.enemySeen) s.enemySeen = [];
-  // self-healing: older saves predate the servant roster
+  if (!s.titles) s.titles = [];
   if (!s.servants) s.servants = { owned: [], active: [] };
   return s;
 }
 
-let saveDirty = false, publishTimer = null, artifactCapPromise;
-// A successful publish reloads THIS tab too (that's how the artifact capability works). Calling
-// flushNow() on every route('v-home') turned out to still be jarring even though the player was
-// "already heading there" (president: 初期画面に戻るバグがひどい) - home is visited constantly
-// (after every quest/purchase/menu-back), so that was really a reload-on-every-navigation bug in
-// practice. Fix: normal navigation only ever calls persist() (localStorage + dirty flag, no
-// reload). The real publish only fires when the player can't see it happen - tab hidden/closed
-// (see the visibilitychange/pagehide listeners in 50_main.js) - or as a last-resort long idle
-// fallback, never as a side effect of moving between screens.
 function persist() {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch { /* best-effort only */ }
-  saveDirty = true;
-  clearTimeout(publishTimer);
-  publishTimer = setTimeout(flushSave, 60000);
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 }
-function flushNow() { clearTimeout(publishTimer); flushSave(); }
+function flushNow() { persist(); }
 function resetSave() {
   save = { ...DEFAULT_SAVE, heroes: defaultHeroes(), mastered: [], ownedOrbs: [], unlockedJobs: [...START_JOBS], questCleared: {}, enemySeen: [], titles: [], servants: { owned: [], active: [] } };
   persist();
 }
-
 function discoverEnemy(id) {
   if (!id || save.enemySeen.includes(id)) return false;
   save.enemySeen.push(id);
   persist();
   return true;
-}
-
-async function getArtifactCap() {
-  if (artifactCapPromise === undefined) {
-    artifactCapPromise = (window.claude && window.claude.use) ? window.claude.use('artifact').catch(() => null) : Promise.resolve(null);
-  }
-  return artifactCapPromise;
-}
-
-// Publishing reloads the tab that calls it, so this never fires mid-battle - it just keeps
-// deferring itself every 2.5s until B.running is false, then republishes the whole page with
-// the current save baked in. B is declared later in the concatenated build but always exists
-// by the time this actually runs.
-async function flushSave() {
-  if (typeof B !== 'undefined' && B.running) { publishTimer = setTimeout(flushSave, 2500); return; }
-  if (!saveDirty || !window.PAGE_TEMPLATE) return;
-  const cap = await getArtifactCap();
-  if (!cap) return; // capability not granted in this view - localStorage-only for this tab
-  // BUG HISTORY - read before touching this function: this whole feature silently corrupted
-  // every save for a while because this file's own source is concatenated verbatim into the
-  // page's one real game-logic tag, so ANY markup-sensitive sequence typed literally ANYWHERE
-  // in this file (code or comments) - the tag-open word, the tag-close word, or an HTML
-  // comment-opener - gets parsed as real markup right there and corrupts the tag boundary.
-  // Two independent bugs, found one after the other: a literal copy of the tag-close word in
-  // a comment, and a literal copy of the self-slot's HTML-comment marker in the replace() call
-  // below. Both are now built from split fragments (never a contiguous literal), and this
-  // comment deliberately never spells either sequence out either.
-  // Same split-fragment rule applies to the save-slot marker below, for a THIRD reason beyond
-  // the two above: build.ps1's own build-time substitution for this exact marker is a REPLACE
-  // ALL (PowerShell's .Replace(), unlike JS's first-occurrence-only string .replace()), so a
-  // contiguous copy of the marker sitting in this source file - even inside a quoted JS string,
-  // never mind a comment - gets overwritten by the build too, silently turning this very call's
-  // own search string into the literal word the marker resolves to. Three independent ways for
-  // a contiguous literal to break the build; the fix is the same fragment trick every time.
-  const openTag = '<scr' + 'ipt>', closeTag = '<' + '/scr' + 'ipt>';
-  const closeSeq = '<' + '/scr' + 'ipt';
-  const selfMarker = '<' + '!--__SELF__--' + '>';
-  const saveSlot = '/*' + '__SAVE__' + '*/';
-  const templateJson = JSON.stringify(window.PAGE_TEMPLATE).replace(new RegExp(closeSeq, 'gi'), '<\\/script');
-  const selfScript = openTag + 'window.PAGE_TEMPLATE = ' + templateJson + ';' + closeTag;
-  const html = window.PAGE_TEMPLATE
-    .replace(saveSlot, JSON.stringify(save))
-    .replace(selfMarker, selfScript);
-  saveDirty = false;
-  try { await cap.publish(html); }
-  catch { saveDirty = true; } // 'conflict' means another view already won and is reloading; anything else, just retry on the next trigger
 }
 
 // --- hero progression ---
@@ -428,7 +345,7 @@ const UI_NPC_ART = {
 // "invisible person wearing floating gear" silhouette. No visible skin/face/body is drawn.
 // This file is the single source of truth for all 37 profession visuals.
 window.REBUILD_HERO_ART = window.REBUILD_HERO_ART || {};
-window.MAMORIBITO_VISUAL_REV = '2026-09-22-V8-ALL37-LIVE';
+window.MAMORIBITO_VISUAL_REV = '2026-09-22-V9-SINGLE-SOURCE';
 
 (() => {
   const LINE = {
