@@ -46,8 +46,8 @@ y8LO7YEYZlQH+H+yP2oek41QDobLw5n3paoPG61EU4d5NCtPwRvBZ3GM0Chmz9yEF6rPl0MFVLVYzvIC
 }
 
 loadHeroArt();
-loadStarterJobSheet();
-loadAdvancedJobSheet();
+// Rebuild V8 is the single source of truth for all 37 profession visuals.
+// Do not load the legacy starter/advanced sheets: they overwrite the new generated art.
 loadEnemyArt();
 
 function darken(hex, amt) {
@@ -958,7 +958,7 @@ function renderTree() {
 
 // --- training ---
 const TRAINING_TEST_UNLIMITED = true;
-window.MAMORIBITO_TEST_REV = '20260922-live-v5-hq';
+window.MAMORIBITO_TEST_REV = '20260922-live-v7-all37';
 const TRAIN_KINDS = [
   { id: 'suburi', name: '素振り', line: 'melee' },
   { id: 'matoi', name: '的射', line: 'ranged' },
