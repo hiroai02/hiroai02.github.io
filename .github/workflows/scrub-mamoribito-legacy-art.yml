@@ -1,0 +1,52 @@
+name: Scrub Mamoribito Legacy Hero Art
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/scrub-mamoribito-legacy-art.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scrub:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove embedded legacy hero JPEG data
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          p = Path("mamoribito/index.html")
+          text = p.read_text(encoding="utf-8")
+
+          plain = re.compile(r',"hero_[A-Za-z0-9_]+":"data:image/jpeg;base64,[A-Za-z0-9+/=]+"')
+          escaped = re.compile(r',\\"hero_[A-Za-z0-9_]+\\":\\"data:image/jpeg;base64,[A-Za-z0-9+/=]+\\"')
+
+          text, n1 = plain.subn("", text)
+          text, n2 = escaped.subn("", text)
+
+          if plain.search(text) or escaped.search(text):
+              raise SystemExit("legacy hero JPEG data still present")
+
+          if n1 or n2:
+              p.write_text(text, encoding="utf-8")
+          print(f"removed legacy hero JPEG blobs: plain={n1}, embedded-template={n2}")
+
+      - name: Commit scrubbed live build
+        shell: bash
+        run: |
+          if git diff --quiet -- mamoribito/index.html; then
+            echo "No legacy hero JPEG data found"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mamoribito/index.html
+          git commit -m "art: purge embedded legacy hero jpeg data"
+          git push
