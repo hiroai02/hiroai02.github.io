@@ -7564,7 +7564,7 @@ function regenTickets() {
 
 function renderTraining() {
   regenTickets();
-  document.getElementById('trainTickets').textContent = `${save.trainTickets} / ${BAL.training.ticketMax}`;
+  document.getElementById('trainTickets').textContent = '∞（テスト）';
 
   const picker = document.getElementById('trainHeroPicker');
   picker.innerHTML = save.heroes.map((h, i) =>
@@ -7593,15 +7593,13 @@ function renderTraining() {
         <b>${k.name}${fit ? ' <em>適性</em>' : ''}</b>
         <small>${j.name}の職Expを得る${fit ? '（効果+30%）' : ''}</small>
       </span>
-      <button class="btn link" data-train="${k.id}" ${save.trainTickets <= 0 ? 'disabled' : ''}>修行する</button>
+      <button class="btn link" data-train="${k.id}">修行する</button>
     </div>`;
   }).join('');
 }
 
 function doTrain(kindId) {
   regenTickets();
-  if (save.trainTickets <= 0) return;
-  save.trainTickets--;
   save.trainCount++;
   if (!save.lastTicketAt) save.lastTicketAt = Date.now();
 
