@@ -447,7 +447,7 @@ window.REBUILD_HERO_ART.hero_shashu = "data:image/webp;base64,UklGRlo0AABXRUJQVl
 // This file loads after the legacy 16_art_* overrides, so these 37 entries are the actual
 // source art used by the battle board, party screen, training screen and profession tree.
 window.REBUILD_HERO_ART = window.REBUILD_HERO_ART || {};
-window.MAMORIBITO_VISUAL_REV = '2026-09-22-V7-ALLCLASS-HQ';
+window.MAMORIBITO_VISUAL_REV = '2026-09-22-V8-ALL37-LIVE';
 
 (() => {
   const LINE = {
@@ -1231,8 +1231,6 @@ function loadHeroArt() {
   for (const key of Object.keys(art)) {
     if (!key.startsWith('hero_')) continue;
     const jobId = key.slice(5);
-    if (STARTER_JOB_IDS.has(jobId)) continue;
-    if (ADVANCED_JOB_IDS.has(jobId)) continue;
     const img = new Image();
     // Hosted build loads legacy art from raw.githubusercontent.com. Anonymous CORS keeps
     // extractSubject()/toDataURL canvas operations readable instead of tainting the canvas.
@@ -1247,7 +1245,12 @@ function loadHeroArt() {
       heroArtCache[jobId] = extractSubject(img, HERO_ART_FLIP.has(jobId));
       delete jobIconCache[jobId];
       delete heroPortraitCache[jobId];
+      if (typeof homeHeroCache !== 'undefined') delete homeHeroCache[jobId];
       if (typeof renderHome === 'function' && document.getElementById('v-home')?.classList.contains('active')) renderHome();
+      if (typeof renderParty === 'function' && document.getElementById('v-party')?.classList.contains('active')) renderParty();
+      if (typeof renderTree === 'function' && document.getElementById('v-tree')?.classList.contains('active')) renderTree();
+      if (typeof renderTraining === 'function' && document.getElementById('v-train')?.classList.contains('active')) renderTraining();
+      if (typeof renderCodex === 'function' && document.getElementById('v-codex')?.classList.contains('active')) renderCodex();
       if (typeof refreshGuideArt === 'function') refreshGuideArt();
     };
     img.src = art[key];
