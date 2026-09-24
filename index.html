@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="google-site-verification" content="aGJ_FmFQE_Plsa1HRFbazUw2j1BgjlWjl-5fPzVRDtY">
 <title>くらしの比較ノート | 失敗しない暮らし選びを、みさきがやさしく整理</title>
 <meta name="description" content="日用品・収納・家電・暮らしの道具を、サイズや仕様、購入者レビューから比較。みさきが失敗しにくい選び方をやさしく整理します。">
@@ -14,7 +14,7 @@
 <meta property="og:image" content="https://hiroai02.github.io/assets/hero-misaki.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://hiroai02.github.io/assets/hero-misaki.jpg">
-<meta name="theme-color" content="#fff8f3">
+<meta name="theme-color" content="#fffaf7">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@600;700&display=swap" rel="stylesheet">
@@ -24,6 +24,8 @@
 
 <header class="topbar">
   <div class="topbar-inner">
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="メニューを開く" aria-expanded="false">☰</button>
+
     <a class="brand-lockup" href="/">
       <span class="brand-avatar"><img src="/assets/hero-misaki.jpg" alt="みさき"></span>
       <span class="brand-copy">
@@ -38,26 +40,39 @@
       <a href="#featured">比較記事</a>
       <a href="https://hiroai02.github.io/okaimono-biyori/">お買いもの</a>
       <a href="https://hiroai02.github.io/land-risk-view/">おうち探し</a>
-      <a href="https://note.com/quiet_dill4282">note</a>
+      <a href="https://note.com/quiet_dill4282" target="_blank" rel="noopener">note</a>
       <a href="https://hiroai02.github.io/links/">リンクまとめ</a>
     </nav>
 
-    <a class="nav-search" href="#categories" aria-label="カテゴリから探す">⌕</a>
+    <form class="header-search" id="headerSearch" role="search">
+      <input id="headerSearchInput" type="search" placeholder="キーワードで検索..." aria-label="記事を検索">
+      <button type="submit" aria-label="検索">⌕</button>
+    </form>
   </div>
+
+  <nav class="mobile-menu" id="mobileMenu" aria-label="スマホメニュー">
+    <a href="/">ホーム</a>
+    <a href="#categories">カテゴリ</a>
+    <a href="#featured">比較記事</a>
+    <a href="https://hiroai02.github.io/okaimono-biyori/">お買いもの</a>
+    <a href="https://hiroai02.github.io/land-risk-view/">おうち探し</a>
+    <a href="https://note.com/quiet_dill4282" target="_blank" rel="noopener">note</a>
+    <a href="https://hiroai02.github.io/links/">リンクまとめ</a>
+  </nav>
 </header>
 
 <main>
   <section class="home-hero">
-    <div class="home-hero-media">
-      <img src="/assets/hero-misaki.jpg" alt="暮らしのアイテムを比較して紹介する案内役のみさき">
+    <div class="home-hero-bg" aria-hidden="true">
+      <img src="/assets/hero-misaki.jpg" alt="">
     </div>
-    <div class="home-hero-overlay"></div>
+    <div class="home-hero-shade"></div>
 
     <div class="home-hero-inner">
       <div class="home-hero-copy">
         <p class="hero-kicker">MISAKI'S LIFESTYLE GUIDE</p>
         <h1>失敗しない<br>暮らし選びを、<br><em>みさきがやさしく整理</em>します。</h1>
-        <p class="hero-description">日用品・収納・家電・暮らしの道具。<br>「なんとなく買う」を減らして、サイズ・仕様・レビューを比べて選べるノートへ。</p>
+        <p class="hero-description">日用品・収納・家電・暮らしの道具。<br>「なんとなく買う」を減らして、比べて選べるノートへ。</p>
 
         <div class="hero-actions">
           <a class="primary-cta" href="#featured">比較記事を見る <span>→</span></a>
@@ -73,14 +88,12 @@
 
       <aside class="hero-side">
         <div class="profile-card">
-          <div class="profile-mini">
-            <img src="/assets/hero-misaki.jpg" alt="みさき">
-          </div>
+          <div class="profile-mini"><img src="/assets/hero-misaki.jpg" alt="みさき"></div>
           <div>
             <small>はじめまして</small>
             <h2>みさきです…♡</h2>
-            <p>暮らしがちょっと楽になるアイテムや情報を、やさしくまとめています。</p>
-            <a href="#about-misaki">みさきについて <span>→</span></a>
+            <p>暮らしがちょっと楽しくなるアイテムや情報を、やさしくまとめています。</p>
+            <a href="#about-misaki">みさきのプロフィール →</a>
           </div>
         </div>
 
@@ -96,29 +109,41 @@
 
   <section class="category-rail" id="categories">
     <div class="category-rail-inner">
-      <a class="category-tile" href="/articles/mizumawari-guide.html">
-        <img src="/assets/cat-mizumawari.jpg" alt="水まわり・換気">
-        <span><b>水まわり・換気</b><small>掃除・交換・防災</small></span>
+      <a class="category-tile" href="/articles/kankisen-filter.html">
+        <img src="/assets/cat-mizumawari.jpg" alt="キッチン">
+        <span><b>キッチン</b><small>料理をもっと快適に</small></span>
       </a>
       <a class="category-tile" href="/articles/tsupparidana.html">
         <img src="/assets/cat-shuno.jpg" alt="収納">
         <span><b>収納</b><small>すっきり整える</small></span>
       </a>
+      <a class="category-tile" href="/articles/monitor-arm.html">
+        <span class="category-icon category-icon--blue">▣</span>
+        <span><b>家電</b><small>暮らしを快適に</small></span>
+      </a>
+      <a class="category-tile" href="/articles/fumidai.html">
+        <span class="category-icon category-icon--green">♢</span>
+        <span><b>日用品</b><small>毎日使うもの</small></span>
+      </a>
       <a class="category-tile" href="/articles/amido-net.html">
         <img src="/assets/cat-mado.jpg" alt="窓・玄関">
         <span><b>窓・玄関</b><small>住まいの小さな困りごと</small></span>
       </a>
-      <a class="category-tile" href="/articles/monitor-arm.html">
-        <div class="generated-tile generated-tile--desk">⌨</div>
-        <span><b>デスク・家電</b><small>快適に使う</small></span>
+      <a class="category-tile" href="/articles/shoes-rack.html">
+        <span class="category-icon category-icon--purple">♧</span>
+        <span><b>暮らし小物</b><small>使いやすさ重視</small></span>
       </a>
       <a class="category-tile" href="https://hiroai02.github.io/okaimono-biyori/">
-        <div class="generated-tile generated-tile--shop">♡</div>
+        <span class="category-icon category-icon--pink">♡</span>
         <span><b>お買いもの</b><small>楽天・セール情報</small></span>
       </a>
       <a class="category-tile" href="https://hiroai02.github.io/land-risk-view/">
-        <div class="generated-tile generated-tile--home">⌂</div>
-        <span><b>おうち探し</b><small>土地・家づくり</small></span>
+        <span class="category-icon category-icon--orange">⌂</span>
+        <span><b>おうち探し</b><small>家づくり・引っ越し</small></span>
+      </a>
+      <a class="category-tile" href="https://note.com/quiet_dill4282" target="_blank" rel="noopener">
+        <span class="category-icon category-icon--lav">✎</span>
+        <span><b>読みもの</b><small>みさきのnote</small></span>
       </a>
     </div>
   </section>
@@ -128,71 +153,36 @@
       <div>
         <p class="eyebrow">MISAKI'S PICKS</p>
         <h2>みさきのおすすめ比較記事</h2>
-        <p>実際に比較すると差が出やすいものを中心に、選び方を整理しています。</p>
+        <p>実際に差が出やすいものを中心に、失敗しにくい選び方を整理しています。</p>
       </div>
       <a href="#all-guides">もっと見る →</a>
     </div>
 
     <div class="featured-layout">
-      <div class="featured-grid">
-        <a class="feature-card" href="/articles/kankisen-filter.html">
-          <div class="feature-image">
-            <img src="/assets/cat-mizumawari.jpg" alt="換気扇・水まわり">
-            <span class="feature-tag">水まわり</span>
-          </div>
-          <div class="feature-body">
-            <h3>換気扇フィルターは深型・浅型・薄型のどれ？</h3>
-            <p>サイズの測り方から、失敗しにくい選び方まで比較。</p>
-            <span class="round-arrow">→</span>
-          </div>
+      <div class="featured-grid" id="featuredGrid">
+        <a class="feature-card searchable" data-search="キッチン 換気扇 フィルター 水まわり" href="/articles/kankisen-filter.html">
+          <div class="feature-image"><img src="/assets/cat-mizumawari.jpg" alt="換気扇・キッチン"><span class="feature-tag">キッチン</span></div>
+          <div class="feature-body"><h3>本当に使いやすい換気扇フィルターの選び方</h3><p>深型・浅型・薄型。サイズの測り方から失敗しにくい比較まで。</p><span class="round-arrow">→</span></div>
         </a>
 
-        <a class="feature-card" href="/articles/tsupparidana.html">
-          <div class="feature-image">
-            <img src="/assets/cat-shuno.jpg" alt="収納・お部屋">
-            <span class="feature-tag">収納</span>
-          </div>
-          <div class="feature-body">
-            <h3>突っ張り棚は天井の高さがカギ。</h3>
-            <p>賃貸でも失敗しにくい、幅・高さ・耐荷重の比較。</p>
-            <span class="round-arrow">→</span>
-          </div>
+        <a class="feature-card searchable" data-search="収納 突っ張り棚 収納グッズ 賃貸" href="/articles/tsupparidana.html">
+          <div class="feature-image"><img src="/assets/cat-shuno.jpg" alt="収納"><span class="feature-tag">収納</span></div>
+          <div class="feature-body"><h3>失敗しない収納グッズの選び方</h3><p>賃貸でも使いやすい、幅・高さ・耐荷重の見方をやさしく整理。</p><span class="round-arrow">→</span></div>
         </a>
 
-        <a class="feature-card" href="/articles/monitor-arm.html">
-          <div class="feature-image feature-image--graphic">
-            <div class="feature-graphic feature-graphic--desk">DESK</div>
-            <span class="feature-tag">家電</span>
-          </div>
-          <div class="feature-body">
-            <h3>モニターアームは耐荷重から選ぶ。</h3>
-            <p>自分のモニターに必要な数値を分かりやすく整理。</p>
-            <span class="round-arrow">→</span>
-          </div>
+        <a class="feature-card searchable" data-search="家電 デスク モニターアーム 在宅ワーク" href="/articles/monitor-arm.html">
+          <div class="feature-image feature-image--graphic"><div class="feature-graphic feature-graphic--desk">DESK</div><span class="feature-tag">家電</span></div>
+          <div class="feature-body"><h3>買ってよかった家電。モニターアーム比較</h3><p>耐荷重と対応サイズを確認して、デスクまわりの失敗を減らす。</p><span class="round-arrow">→</span></div>
         </a>
 
-        <a class="feature-card" href="/articles/amido-net.html">
-          <div class="feature-image">
-            <img src="/assets/cat-mado.jpg" alt="窓・玄関">
-            <span class="feature-tag">窓・玄関</span>
-          </div>
-          <div class="feature-body">
-            <h3>網戸ネットはメッシュ数で選ぶ。</h3>
-            <p>虫除け・風通し・目隠しの違いを比較。</p>
-            <span class="round-arrow">→</span>
-          </div>
+        <a class="feature-card searchable" data-search="窓 網戸 玄関 メッシュ 虫除け" href="/articles/amido-net.html">
+          <div class="feature-image"><img src="/assets/cat-mado.jpg" alt="窓・玄関"><span class="feature-tag">窓・玄関</span></div>
+          <div class="feature-body"><h3>網戸ネットはメッシュ数で選ぶ</h3><p>虫除け・風通し・目隠しの違いを比較。</p><span class="round-arrow">→</span></div>
         </a>
       </div>
 
       <aside class="ranking-panel">
-        <div class="ranking-head">
-          <div>
-            <p class="eyebrow">POPULAR</p>
-            <h3>人気の記事</h3>
-          </div>
-          <span>比較ノート</span>
-        </div>
-
+        <div class="ranking-head"><div><p class="eyebrow">POPULAR</p><h3>人気の記事ランキング</h3></div><span>もっと見る</span></div>
         <ol class="ranking-list">
           <li><span class="rank">1</span><a href="/articles/kankisen-filter.html"><b>換気扇フィルターの選び方</b><small>サイズで失敗しない比較</small></a><i>›</i></li>
           <li><span class="rank">2</span><a href="/articles/tsupparidana.html"><b>突っ張り棚の選び方</b><small>高さと耐荷重を比較</small></a><i>›</i></li>
@@ -207,22 +197,19 @@
   <section class="media-hub" id="all-guides">
     <div class="media-hub-inner">
       <a class="hub-card hub-card--shop" href="https://hiroai02.github.io/okaimono-biyori/">
-        <div class="hub-visual"><span>🛍</span></div>
+        <div class="hub-visual">🛍</div>
         <div><small>RAKUTEN</small><h3>おかいものびより</h3><p>楽天のおすすめ・セール攻略を、みさきがセレクト。</p><b>サイトを見る →</b></div>
       </a>
-
       <a class="hub-card hub-card--home" href="https://hiroai02.github.io/land-risk-view/">
-        <div class="hub-visual"><span>⌂</span></div>
+        <div class="hub-visual">⌂</div>
         <div><small>HOME</small><h3>おうち探しノート</h3><p>土地選び・家づくり・引っ越しをやさしく整理。</p><b>サイトを見る →</b></div>
       </a>
-
-      <a class="hub-card hub-card--note" href="https://note.com/quiet_dill4282">
-        <div class="hub-visual"><span>✎</span></div>
+      <a class="hub-card hub-card--note" href="https://note.com/quiet_dill4282" target="_blank" rel="noopener">
+        <div class="hub-visual">✎</div>
         <div><small>NOTE</small><h3>みさきの note</h3><p>暮らしの裏話や調べたことを、ゆるっと発信。</p><b>noteを見る →</b></div>
       </a>
-
       <a class="hub-card hub-card--links" href="https://hiroai02.github.io/links/">
-        <div class="hub-visual"><span>∞</span></div>
+        <div class="hub-visual">∞</div>
         <div><small>PORTAL</small><h3>リンクまとめ</h3><p>すべてのサイト・SNSをまとめた入口。</p><b>一覧を見る →</b></div>
       </a>
     </div>
@@ -230,9 +217,7 @@
 
   <section class="about-misaki" id="about-misaki">
     <div class="about-misaki-inner">
-      <div class="about-photo">
-        <img src="/assets/hero-misaki.jpg" alt="案内役のみさき">
-      </div>
+      <div class="about-photo"><img src="/assets/hero-misaki.jpg" alt="案内役のみさき"></div>
       <div class="about-copy">
         <p class="eyebrow">ABOUT MISAKI</p>
         <h2>「安いから」ではなく、<br>自分に合うものを選べるように。</h2>
@@ -256,22 +241,42 @@
       </a>
       <p>暮らしの「なんとなく買う」を減らして、比べて選べるノートへ。</p>
     </div>
-
     <div class="footer-links">
       <a href="/">ホーム</a>
       <a href="/privacy.html">プライバシーポリシー</a>
       <a href="https://hiroai02.github.io/okaimono-biyori/">おかいものびより</a>
       <a href="https://hiroai02.github.io/land-risk-view/">おうち探しノート</a>
       <a href="https://hiroai02.github.io/links/">リンクまとめ</a>
-      <a href="https://x.com/hiroMark02">X</a>
+      <a href="https://x.com/hiroMark02" target="_blank" rel="noopener">X</a>
     </div>
   </div>
-
-  <div class="footer-note">
-    <p>当サイトはAmazonアソシエイト・プログラムの参加者です。商品リンクを通じて紹介料を得ることがあります。価格・在庫・仕様は購入前に販売ページでご確認ください。</p>
-    <span>© 2026 くらしの比較ノート</span>
-  </div>
+  <div class="footer-note"><p>当サイトはAmazonアソシエイト・プログラムの参加者です。商品リンクを通じて紹介料を得ることがあります。価格・在庫・仕様は購入前に販売ページでご確認ください。</p><span>© 2026 くらしの比較ノート</span></div>
 </footer>
 
+<script>
+const menuBtn=document.getElementById('mobileMenuBtn');
+const menu=document.getElementById('mobileMenu');
+menuBtn?.addEventListener('click',()=>{
+  const open=menu.classList.toggle('open');
+  menuBtn.setAttribute('aria-expanded',String(open));
+  menuBtn.textContent=open?'×':'☰';
+});
+menu?.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');menuBtn.textContent='☰';menuBtn.setAttribute('aria-expanded','false');}));
+
+document.getElementById('headerSearch')?.addEventListener('submit',(e)=>{
+  e.preventDefault();
+  const q=document.getElementById('headerSearchInput').value.trim().toLowerCase();
+  if(!q){document.getElementById('featured')?.scrollIntoView({behavior:'smooth'});return;}
+  let hit=null;
+  document.querySelectorAll('.searchable').forEach(card=>{
+    const matched=(card.dataset.search+' '+card.textContent).toLowerCase().includes(q);
+    card.classList.toggle('search-miss',!matched);
+    if(matched&&!hit) hit=card;
+  });
+  document.getElementById('featured')?.scrollIntoView({behavior:'smooth'});
+  if(hit) setTimeout(()=>hit.classList.add('search-hit'),400);
+  setTimeout(()=>document.querySelectorAll('.searchable').forEach(c=>c.classList.remove('search-hit')),1800);
+});
+</script>
 </body>
 </html>
