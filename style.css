@@ -278,3 +278,15 @@ footer.site{margin-top:60px;padding-top:20px;border-top:1px solid #e3dfd3;font-s
  .home-hero-copy h1{font-size:30px!important}
  .hero-side{margin-top:18px!important}
 }
+
+
+/* 2026-09-25 HQ image correction */
+.brand-avatar{width:46px;height:46px;flex:0 0 46px;border-radius:50%;overflow:hidden;background:#f6e8e2}
+.brand-avatar img{width:100%;height:100%;object-fit:cover;object-position:50% 35%;transform:none}
+.home-hero-bg--reference img{width:100%;height:100%;object-fit:cover;object-position:center 42%;filter:none;image-rendering:auto}
+.profile-mini{overflow:hidden}
+.profile-mini img,.about-photo img{width:100%;height:100%;object-fit:cover;object-position:center 32%;transform:none;image-rendering:auto}
+@media(max-width:760px){
+ .brand-avatar{width:42px;height:42px;flex-basis:42px}
+ .home-hero-bg--reference img{object-position:62% 38%}
+}
