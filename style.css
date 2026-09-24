@@ -52,7 +52,7 @@ button,input{font:inherit}
 .profile-card p{font-size:9px;line-height:1.7;margin:0 0 8px;color:#6f5e56}
 .profile-card a{display:inline-block;background:var(--pink-soft);color:var(--pink-dark);font-size:9px;font-weight:800;padding:6px 10px;border-radius:999px}
 .shop-promo{position:relative;overflow:hidden;display:block;padding:18px 20px;border-radius:20px;background:linear-gradient(135deg,#fff0e7,#f8d2c0);box-shadow:var(--shadow-soft);border:1px solid rgba(255,255,255,.8)}
-.shop-promo:after{content:"♡";position:absolute;right:14px;top:0;font-size:78px;color:rgba(239,95,115,.1)}
+
 .shop-promo-label{font-size:7px;font-weight:900;letter-spacing:.15em;color:#e16a38}
 .shop-promo strong{display:block;font-family:"Zen Old Mincho",serif;font-size:21px;margin-top:2px}
 .shop-promo p{font-size:9px;color:#756159;margin:3px 0 10px}
