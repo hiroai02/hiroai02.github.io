@@ -266,3 +266,15 @@ footer.site{margin-top:60px;padding-top:20px;border-top:1px solid #e3dfd3;font-s
  .category-photo{height:96px!important}
  .category-photo img{height:96px!important;object-fit:cover!important;filter:none!important}
 }
+
+/* Misaki reference lock: never substitute unrelated stock portraits */
+.home-hero-bg--reference img{object-position:center 32%;filter:none!important}
+.brand-avatar img,.profile-mini img,.about-photo img{object-fit:cover;object-position:center 24%;filter:none!important}
+@media(max-width:760px){
+ .home-hero{display:grid;background:#fffaf7}
+ .home-hero-bg--reference{grid-row:2;position:relative!important;height:300px!important;overflow:hidden}
+ .home-hero-bg--reference img{width:100%;height:100%;object-fit:cover;object-position:center 28%;filter:none!important}
+ .home-hero-inner{grid-row:1;padding:26px 18px 18px!important;background:#fffaf7!important}
+ .home-hero-copy h1{font-size:30px!important}
+ .hero-side{margin-top:18px!important}
+}
