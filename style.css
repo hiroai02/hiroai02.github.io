@@ -239,3 +239,12 @@ footer.site{margin-top:60px;padding-top:20px;border-top:1px solid #e3dfd3;font-s
  .category-photo img{min-height:82px}
  .hub-photo img{min-height:82px}
 }
+
+/* 2026-09-25 photographic quality pass */
+.hero-character img{width:100%;height:100%;object-fit:cover;object-position:center 30%;image-rendering:auto}
+.category-photo{background:#f4f1ec;overflow:hidden}
+.category-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:none}
+.category-tile{overflow:hidden}
+.category-tile .category-art{border-radius:18px 18px 8px 8px}
+.feature-image img,.hub-photo img{width:100%;height:100%;object-fit:cover;display:block;image-rendering:auto}
+@media(min-width:900px){.hero-character img{min-height:440px}}
