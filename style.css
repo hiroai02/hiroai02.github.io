@@ -160,3 +160,37 @@ footer.site{margin-top:60px;padding-top:20px;border-top:1px solid #e3dfd3;font-s
   .home-footer{padding:28px 16px 16px}.home-footer-inner{display:grid}.footer-note{display:grid}
   .product-card{flex-direction:column}.product-card .photo{width:100%;height:160px}.rank-box{grid-template-columns:1fr}
 }
+/* Unified article chrome */
+.article-topbar{position:sticky;top:0;z-index:55;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border-bottom:1px solid #eee4dd}
+.article-topbar-inner{max-width:1100px;margin:auto;min-height:66px;padding:0 20px;display:flex;align-items:center;gap:24px}
+.article-nav{margin-left:auto;display:flex;gap:20px;font-size:10px;font-weight:700;color:#66554d}
+.article-nav a{position:relative;padding:23px 0}
+.article-nav a:hover{color:var(--pink)}
+.article-wrap{padding-top:22px!important}
+.article-brand-strip{display:grid;grid-template-columns:70px 1fr;gap:14px;align-items:center;background:linear-gradient(135deg,#fff7f3,#fce8e7);border:1px solid #f1ddd7;border-radius:18px;padding:12px 16px;margin-bottom:28px;box-shadow:var(--shadow-soft)}
+.article-misaki{width:70px;height:70px;border-radius:18px;overflow:hidden;border:3px solid rgba(255,255,255,.9)}
+.article-misaki img{width:100%;height:100%;object-fit:cover;object-position:center 20%}
+.article-brand-strip small{display:block;font-size:8px;font-weight:900;letter-spacing:.13em;color:var(--pink-dark);margin-bottom:2px}
+.article-brand-strip strong{font-family:"Zen Old Mincho",serif;font-size:14px;line-height:1.5}
+.article-page main>h1{font-family:"Zen Old Mincho",serif;font-size:34px!important;line-height:1.52!important;letter-spacing:.01em}
+.article-page main>p{font-size:14px;line-height:2}
+.article-page main>h2{font-family:"Zen Old Mincho",serif;color:#3d302a;border-left-color:var(--pink)!important}
+.article-page .rank-item{border-radius:16px!important}
+.article-page .product-card{border-radius:18px!important}
+.article-page .buy-btn{background:var(--pink);box-shadow:0 4px 12px rgba(237,100,116,.22)}
+.article-page .buy-btn:hover{background:var(--pink-dark)}
+.article-footer{margin-top:60px;padding:26px 0 10px;border-top:1px solid #e8ded7;color:#74665f}
+.article-footer-main{display:flex;justify-content:space-between;gap:20px;align-items:center}
+.article-footer-links{display:flex;gap:13px;flex-wrap:wrap;font-size:9px;font-weight:700}
+.article-footer>p{font-size:9px;line-height:1.8;margin:18px 0 5px}
+.article-footer>span{font-size:8px;color:#9b8c85}
+@media(max-width:720px){
+  .article-nav{display:none}
+  .article-topbar-inner{min-height:60px}
+  .article-page main>h1{font-size:27px!important}
+  .article-brand-strip{grid-template-columns:58px 1fr;padding:10px 12px}
+  .article-misaki{width:58px;height:58px}
+  .article-brand-strip strong{font-size:12px}
+  .article-footer-main{display:grid}
+  .article-footer-links{gap:9px}
+}
