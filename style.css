@@ -227,3 +227,15 @@ footer.site{margin-top:60px;padding-top:20px;border-top:1px solid #e3dfd3;font-s
   .category-art{height:82px}.category-art svg{width:36px;height:36px}
   .feature-image{height:132px}
 }
+
+/* Full photographic homepage pass */
+.category-photo{padding:0;background:#eee}
+.category-photo:before,.category-photo:after{display:none}
+.category-photo img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+.category-tile:hover .category-photo img{transform:scale(1.045)}
+.hub-photo{overflow:hidden;padding:0}
+.hub-photo img{width:100%;height:100%;object-fit:cover}
+@media(max-width:760px){
+ .category-photo img{min-height:82px}
+ .hub-photo img{min-height:82px}
+}
