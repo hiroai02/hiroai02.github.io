@@ -290,3 +290,46 @@ footer.site{margin-top:60px;padding-top:20px;border-top:1px solid #e3dfd3;font-s
  .brand-avatar{width:42px;height:42px;flex-basis:42px}
  .home-hero-bg--reference img{object-position:62% 38%}
 }
+
+
+/* 2026-09-25 final reference-alignment pass */
+.home-page{background:#fffaf6}
+.topbar{background:rgba(255,253,250,.97);border-bottom:1px solid #f0e4dc}
+.topbar-inner{max-width:1440px;height:74px}
+.brand-copy strong{font-family:"Zen Old Mincho",serif;font-size:22px;letter-spacing:.045em}
+.home-hero{min-height:590px;background:
+ radial-gradient(circle at 67% 44%,rgba(255,255,255,.98) 0 11%,rgba(255,246,240,.82) 27%,transparent 48%),
+ linear-gradient(105deg,#fffaf5 0%,#fff4ee 50%,#f9e7df 100%);overflow:hidden}
+.home-hero:before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;right:20%;top:48px;background:radial-gradient(circle,#fff 0 28%,#f8e5dc 65%,transparent 67%);opacity:.72}
+.home-hero-inner{max-width:1440px;min-height:590px;grid-template-columns:minmax(0,1.15fr) 330px;gap:46px;padding:64px 38px;position:relative;z-index:2}
+.hero-kicker{letter-spacing:.24em;color:#cf7a70;font-weight:800}
+.home-hero h1{font-family:"Zen Old Mincho",serif;font-size:52px;line-height:1.46;letter-spacing:.025em}
+.home-hero h1 em{font-style:normal;color:#df6570}
+.hero-description{font-size:13px;color:#6e5b53}
+.primary-cta{background:#e66c78;box-shadow:0 10px 26px rgba(230,108,120,.22)}
+.secondary-cta{background:#fff;border-color:#ead8ce}
+.hero-side{gap:14px}
+.profile-card,.shop-promo{border-radius:22px;border:1px solid rgba(255,255,255,.9);box-shadow:0 18px 50px rgba(83,54,42,.10)}
+.profile-card{background:rgba(255,255,255,.86);backdrop-filter:blur(16px)}
+.shop-promo{background:linear-gradient(135deg,#fff0ed,#f7d8d1)}
+.category-rail{background:#fff}
+.category-rail-inner{max-width:1440px;padding:24px 24px 28px;gap:13px}
+.category-tile{border:1px solid #eee3dc;box-shadow:0 9px 28px rgba(68,47,38,.07);transition:transform .22s ease,box-shadow .22s ease}
+.category-tile:hover{transform:translateY(-4px);box-shadow:0 16px 38px rgba(68,47,38,.11)}
+.content-shell{max-width:1440px;padding-top:54px}
+.section-heading h2{font-size:29px}
+.feature-card{border-color:#eee2da;box-shadow:0 12px 34px rgba(70,46,37,.08)}
+.ranking-panel{border-color:#eee2da;box-shadow:0 12px 34px rgba(70,46,37,.08)}
+.about-misaki-inner{max-width:1440px;background:linear-gradient(135deg,#342b28,#4a3933)}
+@media(max-width:760px){
+ .topbar-inner{height:64px}
+ .home-hero{min-height:auto}
+ .home-hero:before{width:300px;height:300px;right:-80px;top:160px;opacity:.55}
+ .home-hero-inner{padding:30px 18px 22px!important}
+ .home-hero-copy h1{font-size:32px!important;line-height:1.5}
+ .hero-description{font-size:11.5px}
+ .hero-actions{margin-top:20px}
+ .profile-card{margin-top:8px}
+ .category-rail-inner{padding-top:16px;padding-bottom:20px}
+ .content-shell{padding-top:36px}
+}
