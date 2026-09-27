@@ -1,0 +1,47 @@
+name: Update Misaki category images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/misaki-category-images.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      KITCHEN_URL: "https://media.canva.com/v2/document-image/hash:-1773680141/height:335/id:DAHWZSmTCps/type:B/width:595?brand=BAHU5LQSdig&csig=AAAAAAAAAAAAAAAAAAAAAEHTJ_mI9y9xEMVM7dEG1_sEh2e-bBxSuCBTZrkNhQS4&disableexport=T&exp=1790515768&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2FmTCps%2FDAHWZSmTCps%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHTDF2ZFFQ%252F20260927%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260927T085224Z%26X-Amz-Expires%3D19324%26X-Amz-Signature%3D7ad0ad2bdd4f2712e68cc82ff796f1aba7976a7c9785e45bb64895de946b4212%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DSun%252C%252027%2520Sep%25202026%252014%253A14%253A28%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAN1S2I5Euhr5vqBQIUiFIjoI2pyEnoDO24Q0Dni5a5uD&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1"
+      STORAGE_URL: "https://media.canva.com/v2/document-image/hash:2016179193/height:335/id:DAHWZWrroGs/type:B/width:595?brand=BAHU5LQSdig&csig=AAAAAAAAAAAAAAAAAAAAANiWjIwUoz-7vx5e6DEN-WN5wmmQLLGDMTQ8xwjMpq4q&disableexport=T&exp=1790515787&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2FrroGs%2FDAHWZWrroGs%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHTDF2ZFFQ%252F20260926%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260926T150552Z%26X-Amz-Expires%3D83335%26X-Amz-Signature%3Dbb38da6c28c21e42bdc9b212896307f9f45e5526b1dbbf3be61cb86f7d29ac9e%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DSun%252C%252027%2520Sep%25202026%252014%253A14%253A47%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAGpYvRNZWE8MpPU9DNtqfNtgzJXlReRhLWyPIOWmJVKo&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1"
+      DESK_URL: "https://media.canva.com/v2/document-image/hash:1182416969/height:335/id:DAHWZcyaWXw/type:B/width:595?brand=BAHU5LQSdig&csig=AAAAAAAAAAAAAAAAAAAAACTSbgwUf7NqmuGVKttup4K9iuCWnn0b0CE6-1dBpfFe&disableexport=T&exp=1790515804&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2FyaWXw%2FDAHWZcyaWXw%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHTDF2ZFFQ%252F20260926%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260926T200317Z%26X-Amz-Expires%3D65507%26X-Amz-Signature%3D695c626b5294d9acea444d5d44f560c69475183391d36c609cfbca9ea2a771cb%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DSun%252C%252027%2520Sep%25202026%252014%253A15%253A04%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAIzX4-g-Iy7o6VkkNrBQMlBtoPlVEehWmhLUdnoJhzT7&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download distinct category images
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/misaki-live
+          curl -L --fail "$KITCHEN_URL" -o assets/misaki-live/kitchen.png
+          curl -L --fail "$STORAGE_URL" -o assets/misaki-live/storage.png
+          curl -L --fail "$DESK_URL" -o assets/misaki-live/desk.png
+      - name: Update only category references
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path("index.html")
+          s=p.read_text(encoding="utf-8")
+          s=s.replace('/assets/misaki-live/kitchen.png?v=20260927-final','/assets/misaki-live/kitchen.png?v=20260927-cat2')
+          s=s.replace('/assets/misaki-live/storage.png?v=20260927-final','/assets/misaki-live/storage.png?v=20260927-cat2')
+          s=s.replace('/assets/misaki-live/monitor-arm.png?v=20260927-final" alt="モニターアーム"','/assets/misaki-live/desk.png?v=20260927-cat2" alt="デスク・家電"')
+          p.write_text(s,encoding="utf-8")
+      - name: Remove workflow and commit
+        shell: bash
+        run: |
+          rm -f .github/workflows/misaki-category-images.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Use distinct generated images for kitchen storage and desk"
+          git push
