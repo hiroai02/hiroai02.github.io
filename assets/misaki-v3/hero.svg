@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="t d">
+<title id="t">みさきの暮らしノート</title><desc id="d">やわらかな陽だまりの部屋でノートを書く女性</desc>
+<defs>
+  <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fffaf7"/><stop offset=".5" stop-color="#f8e7df"/><stop offset="1" stop-color="#f5d9d5"/></linearGradient>
+  <linearGradient id="desk" x1="0" x2="1"><stop stop-color="#d7a57c"/><stop offset="1" stop-color="#b87955"/></linearGradient>
+  <linearGradient id="hair" x1="0" x2="1"><stop stop-color="#51342e"/><stop offset="1" stop-color="#2f211f"/></linearGradient>
+  <linearGradient id="cardigan" x1="0" x2="1"><stop stop-color="#f1c9c2"/><stop offset="1" stop-color="#e8b7b1"/></linearGradient>
+  <filter id="shadow"><feDropShadow dx="0" dy="24" stdDeviation="30" flood-color="#76574a" flood-opacity=".18"/></filter>
+  <filter id="blur"><feGaussianBlur stdDeviation="18"/></filter>
+</defs>
+<rect width="1600" height="900" fill="url(#bg)"/>
+<circle cx="1380" cy="135" r="190" fill="#fff" opacity=".72" filter="url(#blur)"/>
+<rect x="0" y="0" width="740" height="900" fill="#fff" opacity=".46"/>
+<g opacity=".82">
+  <rect x="104" y="128" width="255" height="255" rx="18" fill="#fff" stroke="#e6d7ce" stroke-width="8"/>
+  <rect x="142" y="166" width="179" height="179" rx="10" fill="#e8d9cd"/>
+  <path d="M150 320c48-92 112-111 164-49l0 74H150z" fill="#c9b6a4"/>
+</g>
+<g transform="translate(180 470)">
+  <rect width="470" height="26" rx="13" fill="#bf8f6d" opacity=".72"/>
+  <rect x="55" y="26" width="22" height="230" rx="11" fill="#bd8a66"/>
+  <rect x="390" y="26" width="22" height="230" rx="11" fill="#bd8a66"/>
+</g>
+<g opacity=".8">
+  <ellipse cx="265" cy="660" rx="145" ry="56" fill="#e2b8b2"/>
+  <circle cx="180" cy="585" r="45" fill="#aac29b"/>
+  <circle cx="236" cy="548" r="28" fill="#c7d7b8"/>
+  <circle cx="292" cy="574" r="36" fill="#98b188"/>
+  <rect x="224" y="593" width="18" height="107" rx="9" fill="#8c9c77"/>
+  <rect x="182" y="606" width="16" height="92" rx="8" fill="#8c9c77"/>
+  <rect x="283" y="604" width="16" height="96" rx="8" fill="#8c9c77"/>
+  <path d="M135 698h220l-28 85H165z" fill="#efe4dc"/>
+</g>
+<rect x="720" y="645" width="820" height="255" fill="url(#desk)"/>
+<g filter="url(#shadow)" transform="translate(720 110)">
+  <ellipse cx="397" cy="610" rx="240" ry="62" fill="#7c5747" opacity=".13"/>
+  <path d="M204 563c-24-131 16-271 99-348 71-66 199-76 285 1 68 62 106 188 73 339z" fill="url(#hair)"/>
+  <ellipse cx="433" cy="286" rx="132" ry="154" fill="#f8d6c4"/>
+  <path d="M314 274c22-116 88-177 183-168 67 6 126 50 142 141-43-51-94-70-151-57-72 16-107 50-174 84z" fill="url(#hair)"/>
+  <path d="M337 476c59-40 121-57 187-50 86 10 155 62 186 151l34 163H158l37-176c18-42 62-75 142-88z" fill="url(#cardigan)"/>
+  <path d="M361 472c46-21 108-22 158 0l27 118H328z" fill="#fff5ee"/>
+  <ellipse cx="385" cy="304" rx="14" ry="9" fill="#4a332f"/><ellipse cx="489" cy="304" rx="14" ry="9" fill="#4a332f"/>
+  <path d="M399 370c25 19 55 19 79 0" fill="none" stroke="#c77470" stroke-width="8" stroke-linecap="round"/>
+  <ellipse cx="349" cy="345" rx="28" ry="15" fill="#ef9e9f" opacity=".25"/><ellipse cx="522" cy="345" rx="28" ry="15" fill="#ef9e9f" opacity=".25"/>
+  <path d="M613 554c85 23 146 75 179 144" fill="none" stroke="#f8d6c4" stroke-width="52" stroke-linecap="round"/>
+  <path d="M301 553c-89 19-159 72-211 143" fill="none" stroke="#f8d6c4" stroke-width="52" stroke-linecap="round"/>
+  <rect x="265" y="590" width="330" height="116" rx="20" fill="#fffdf9" transform="rotate(-4 430 648)"/>
+  <line x1="312" y1="625" x2="548" y2="609" stroke="#dfcfc4" stroke-width="5"/><line x1="317" y1="650" x2="553" y2="634" stroke="#dfcfc4" stroke-width="5"/>
+  <path d="M226 651l145-75" stroke="#e89bab" stroke-width="12" stroke-linecap="round"/>
+</g>
+<g transform="translate(1230 520)" filter="url(#shadow)">
+  <path d="M0 0h260l45 177H-35z" fill="#d9c3bf"/>
+  <rect x="28" y="18" width="206" height="125" rx="8" fill="#f6ece9"/>
+  <rect x="86" y="177" width="96" height="10" rx="5" fill="#8c6b62"/>
+</g>
+</svg>
