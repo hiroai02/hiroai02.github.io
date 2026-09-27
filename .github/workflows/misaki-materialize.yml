@@ -1,0 +1,83 @@
+name: Materialize Misaki generated images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/misaki-materialize.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    env:
+      HERO_URL: "https://media.canva.com/v2/document-image/hash:1310229403/height:335/id:DAHWZE5M-Kw/type:B/width:595?brand=BAHU5LQSdig&csig=AAAAAAAAAAAAAAAAAAAAAERLpMJni_FdfGS2d7fSNyZO-7_HYu8-qbXQ73wtiVEn&disableexport=T&exp=1790512119&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F5M-Kw%2FDAHWZE5M-Kw%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHTDF2ZFFQ%252F20260926%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260926T235634Z%26X-Amz-Expires%3D47825%26X-Amz-Signature%3D3ef47f2e2d726a1e99c779a0c0027891b4af94df0b33ba31856d2b2ea3c6389a%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DSun%252C%252027%2520Sep%25202026%252013%253A13%253A39%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAHoyIlk2eKHHwmlD795WwxP0c_hRz8ClcV4i5U5xq2nm&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1"
+      PROFILE_URL: "https://media.canva.com/v2/document-image/hash:415850790/height:335/id:DAHWZJI6RLQ/type:B/width:595?brand=BAHU5LQSdig&csig=AAAAAAAAAAAAAAAAAAAAACF9yMOg-GK8dMKZbPfAr9p9loeu8-PvlK7NvI0Fxlgu&disableexport=T&exp=1790512252&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2FI6RLQ%2FDAHWZJI6RLQ%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHTDF2ZFFQ%252F20260926%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260926T150017Z%26X-Amz-Expires%3D80135%26X-Amz-Signature%3D281c64a4ee787d41f7258d99949b1dddd56c9ac5cbf240117f81f08af42a0ee2%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DSun%252C%252027%2520Sep%25202026%252013%253A15%253A52%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAP0Qr5Gw_i4ZgEe5uuo3h7Imc3kYkH0iA_894W91u7BS&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1"
+      MONITOR_URL: "https://media.canva.com/v2/document-image/hash:-1948690878/height:335/id:DAHWZNEKvpk/type:B/width:595?brand=BAHU5LQSdig&csig=AAAAAAAAAAAAAAAAAAAAAAdx-hO-_54CH1VyzNmLugYF5Cxk7KLp4AhcOZ9tpvmY&disableexport=T&exp=1790512271&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2FEKvpk%2FDAHWZNEKvpk%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHTDF2ZFFQ%252F20260926%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260926T230246Z%26X-Amz-Expires%3D51205%26X-Amz-Signature%3D6410d734359917b7e85dd1a625488d5f1bce1d40740b81b0990cf10f1e007fb2%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DSun%252C%252027%2520Sep%25202026%252013%253A16%253A11%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAGwSHiIfXViOH0fgbWLZKVSZPGE5nDfKilsWk9F8PcYC&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1"
+      KITCHEN_URL: "https://media.canva.com/v2/document-image/hash:-341274788/height:335/id:DAHWZDTDmW4/type:B/width:595?brand=BAHU5LQSdig&csig=AAAAAAAAAAAAAAAAAAAAAGOfUxkBULlid5t13iOQ46YS3Gr_IvXQ3G7MFqQ_9eym&disableexport=T&exp=1790512290&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2FTDmW4%2FDAHWZDTDmW4%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHTDF2ZFFQ%252F20260926%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260926T144152Z%26X-Amz-Expires%3D81278%26X-Amz-Signature%3D5292918b566d1837a3a39ef035b6c03c67ca0e729f334d523fba80a97c0814b4%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DSun%252C%252027%2520Sep%25202026%252013%253A16%253A30%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAIu0iAJZ9A_C20q7iNi-AhFr_97rzC02u-FYyGcp2nTz&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1"
+      STORAGE_URL: "https://media.canva.com/v2/document-image/hash:-1283526169/height:335/id:DAHWZOnk_BI/type:B/width:595?brand=BAHU5LQSdig&csig=AAAAAAAAAAAAAAAAAAAAACqU1uFjzqQkU8WCN5rr-GndHvr6I_wDMqqMeDgZTJAK&disableexport=T&exp=1790512312&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2Fnk_BI%2FDAHWZOnk_BI%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHTDF2ZFFQ%252F20260927%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260927T120626Z%26X-Amz-Expires%3D4226%26X-Amz-Signature%3Dedde983080c5e671490a89f3977cd5387d039b9f7de723a98316b0fb69932ad3%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DSun%252C%252027%2520Sep%25202026%252013%253A16%253A52%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAJf95xC65vE-Z7RPZXHHc2ZW948n-AnKrerqCMf8gxII&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download generated images
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/misaki-live
+          curl -L --fail --retry 3 "$HERO_URL" -o assets/misaki-live/hero.png
+          curl -L --fail --retry 3 "$PROFILE_URL" -o assets/misaki-live/profile.png
+          curl -L --fail --retry 3 "$MONITOR_URL" -o assets/misaki-live/monitor-arm.png
+          curl -L --fail --retry 3 "$KITCHEN_URL" -o assets/misaki-live/kitchen.png
+          curl -L --fail --retry 3 "$STORAGE_URL" -o assets/misaki-live/storage.png
+          test -s assets/misaki-live/hero.png
+          test -s assets/misaki-live/profile.png
+          test -s assets/misaki-live/monitor-arm.png
+          test -s assets/misaki-live/kitchen.png
+          test -s assets/misaki-live/storage.png
+
+      - name: Wire generated images into site
+        shell: python
+        run: |
+          from pathlib import Path
+
+          p = Path("index.html")
+          s = p.read_text(encoding="utf-8")
+          s = s.replace("/assets/misaki-v3/hero.svg?v=3", "/assets/misaki-live/hero.png?v=20260927-final")
+          s = s.replace("/assets/misaki-v3/profile-card.svg?v=1", "/assets/misaki-live/profile.png?v=20260927-final")
+          s = s.replace("/assets/misaki-v3/monitor-arm-card.svg?v=1", "/assets/misaki-live/monitor-arm.png?v=20260927-final")
+          # Top category images must be distinct.
+          first = s.find('/assets/misaki-live/hero.png?v=20260927-final', s.find('kankisen-filter.html'))
+          if first != -1:
+              s = s[:first] + '/assets/misaki-live/kitchen.png?v=20260927-final' + s[first+len('/assets/misaki-live/hero.png?v=20260927-final'):]
+          first = s.find('/assets/misaki-live/profile.png?v=20260927-final', s.find('tsupparidana.html'))
+          if first != -1:
+              s = s[:first] + '/assets/misaki-live/storage.png?v=20260927-final' + s[first+len('/assets/misaki-live/profile.png?v=20260927-final'):]
+          p.write_text(s, encoding="utf-8")
+
+          p = Path("articles/monitor-arm.html")
+          s = p.read_text(encoding="utf-8")
+          s = s.replace("/assets/misaki-v3/profile-card.svg?v=1", "/assets/misaki-live/profile.png?v=20260927-final")
+          s = s.replace("https://hiroai02.github.io/assets/misaki-v3/monitor-arm-card.svg?v=1", "https://hiroai02.github.io/assets/misaki-live/monitor-arm.png?v=20260927-final")
+          s = s.replace("/assets/misaki-v3/monitor-arm-card.svg?v=1", "/assets/misaki-live/monitor-arm.png?v=20260927-final")
+          p.write_text(s, encoding="utf-8")
+
+      - name: Remove obsolete image data
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf assets/misaki-v3
+          rm -rf .misaki-assets .misaki-staging
+          rm -f .github/workflows/misaki-materialize.yml
+
+      - name: Commit generated images
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Implement generated Misaki images [misaki-materialized]"
+          git push
