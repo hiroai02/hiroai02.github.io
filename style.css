@@ -400,3 +400,49 @@ footer.site{margin-top:60px;padding-top:20px;border-top:1px solid #e3dfd3;font-s
     height:86px;
   }
 }
+
+
+/* 2026-09-27 final header and profile photo correction */
+.home-hero-bg--reference img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center 52%;
+  filter:none;
+}
+.home-hero-shade{
+  background:linear-gradient(
+    90deg,
+    rgba(255,252,249,.99) 0%,
+    rgba(255,252,249,.95) 27%,
+    rgba(255,252,249,.60) 44%,
+    rgba(255,252,249,.12) 72%,
+    rgba(255,252,249,.03) 100%
+  );
+}
+.profile-card--image .profile-mini{
+  height:120px;
+  overflow:hidden;
+  border-radius:15px;
+  background:#f4eee9;
+}
+.profile-card--image .profile-mini img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center 48%;
+  filter:none;
+}
+@media(max-width:760px){
+  .home-hero-bg--reference img{
+    object-position:center 50%;
+  }
+  .profile-card--image .profile-mini{
+    height:88px;
+  }
+  .profile-card--image .profile-mini img{
+    object-position:center 50%;
+  }
+}
