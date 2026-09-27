@@ -559,3 +559,27 @@ footer.site{margin-top:60px;padding-top:20px;border-top:1px solid #e3dfd3;font-s
     object-position:34% 38%;
   }
 }
+
+
+/* 2026-09-27 distinct Misaki image roles */
+.profile-card--image .profile-mini img{
+  object-position:center 42%;
+}
+.shop-promo-photo{
+  inset:0 0 0 46%;
+}
+.shop-promo-photo img{
+  object-position:center 48%;
+  filter:saturate(.96) brightness(1.03);
+}
+.about-photo img{
+  object-position:center 46%;
+}
+@media(max-width:760px){
+  .profile-card--image .profile-mini img{
+    object-position:center 42%;
+  }
+  .about-photo img{
+    object-position:center 44%;
+  }
+}
